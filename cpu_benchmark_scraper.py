@@ -96,18 +96,19 @@ def run_bot():
         # dealing with low karma posting restriction
         # bot will use rate limit error to decide how long to sleep for
         time_remaining = 15
-        if (str(error).split()[0] == "RATELIMIT:"):
+        error_message = str(error).split()
+        if (error_message[0] == "RATELIMIT:"):
             units = ['minute', 'minutes']
             # split rate limit warning to grab amount of time
-            for i in str(error).split():
+            for i in error_message:
                 if (i.isdigit()):
                     #  check if time units are present in string
                     for unit in units:
-                        if unit in str(error.split()):
+                        if unit in error_message:
                             #  if minutes, convert to seconds for sleep
                             time_remaining = int(i) * 60
                         else:
-                            #  if seconds, use seconds for sleep
+                            #  if seconds, use directly for sleep
                             time_remaining = int(i)
                             break
                         break
