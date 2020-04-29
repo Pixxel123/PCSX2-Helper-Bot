@@ -6,7 +6,7 @@ import praw
 import config
 import re
 import time
-import sys
+
 
 reddit = praw.Reddit(
     client_id=config.client_id,
@@ -15,6 +15,8 @@ reddit = praw.Reddit(
     user_agent=config.user_agent,
     username=config.username)
 
+
+latest_build = 'https://buildbot.orphis.net/pcsx2/'
 
 str_minimum = 1600
 
@@ -36,7 +38,12 @@ def get_cpu_info(cpu_search):
         # ignores @ clock speeds (with space)
         cpu_name = cells[0].text.split(" @", 1)[0]
         cpu_details_link = cells[0].contents[0].attrs['href']
-        if fuzz.partial_ratio(cpu_name.lower(), cpu_search.lower()) >= 50:
+        # ! token_set_ratio ignores word order and duplicated words
+        # cpu_name and cpu_search are set to lowercase and whitespace is stripped
+        match_criteria = fuzz.token_set_ratio(cpu_name.lower().replace(" ", ""), cpu_search.lower().replace(" ", ""))
+        # ** show matching criteria for debugging purposes
+        # print(f"{cpu_name}: {match_criteria}")
+        if match_criteria >= 85:
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
     cpu_closest_match = process.extractOne(cpu_search, choices)
     cpu_details_link = cpu_closest_match[0]['link']
@@ -60,17 +67,20 @@ def bot_message(cpu_lookup):
         sample_size = cpu_info[2]
         error_margin = cpu_info[3]
         details_page = cpu_info[4]
-        messages = {'minimum': f"Below minimum specs for PCSX2.",
-                    'above_minimum': f"Above minimum specs, but still under the recommended specs for PCSX2.",
-                    'recommended': f"Above recommended specs for PCSX2."}
+        messages = {'minimum': 'Below minimum specs for PCSX2.',
+                    'above_minimum': 'Above minimum specs, but still under the recommended specs for PCSX2.',
+                    'recommended': 'At recommended specs for PCSX2.',
+                    'above_recommended': 'Above recommended specs for PCSX2.'}
         if int(cpu_str_rating) < str_minimum:
             user_specs = messages['minimum']
         if str_minimum < int(cpu_str_rating) < str_recommended:
             user_specs = messages['above_minimum']
-        if int(cpu_str_rating) >= str_recommended:
+        if int(cpu_str_rating) == str_recommended:
             user_specs = messages['recommended']
+        if int(cpu_str_rating) > str_recommended:
+            user_specs = messages['above_recommended']
         bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** {cpu_str_rating}\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)](https://pcsx2.net/getting-started.html)\n\n[**Sample size:** {sample_size} | **Margin for error:** {error_margin} (CPU Benchmark Page)]({details_page})"
-        bot_reply += f"\n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could really help!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub](https://github.com/)"
+        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub](https://github.com/)"
         return bot_reply
     except TypeError:
         print("Could not find CPU information.")
