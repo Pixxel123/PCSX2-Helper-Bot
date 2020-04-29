@@ -15,7 +15,6 @@ reddit = praw.Reddit(
     user_agent=config.user_agent,
     username=config.username)
 
-
 github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
 
