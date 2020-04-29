@@ -15,12 +15,11 @@ reddit = praw.Reddit(
     user_agent=config.user_agent,
     username=config.username)
 
-
+github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
 
 str_minimum = 1600
-
-str_recommended = 2000
+str_recommended = 2100
 
 summon_phrase = 'CPUBot! '
 
@@ -40,12 +39,14 @@ def get_cpu_info(cpu_search):
         cpu_details_link = cells[0].contents[0].attrs['href']
         # ! token_set_ratio ignores word order and duplicated words
         # cpu_name and cpu_search are set to lowercase and whitespace is stripped
-        match_criteria = fuzz.token_set_ratio(cpu_name.lower().replace(" ", ""), cpu_search.lower().replace(" ", ""))
-        # ** show matching criteria for debugging purposes
+        match_criteria = fuzz.token_set_ratio(clean_input(cpu_name), clean_input(cpu_search))
+        # * show all matching criteria for debugging purposes
         # print(f"{cpu_name}: {match_criteria}")
-        if match_criteria >= 85:
+        if match_criteria >= 60:
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
-    cpu_closest_match = process.extractOne(cpu_search, choices)
+            # * show match values for debugging purposes
+            print(f"{cpu_name}: {match_criteria}")
+    cpu_closest_match = process.extractOne(cpu_search, choices, scorer=fuzz.token_set_ratio)
     cpu_details_link = cpu_closest_match[0]['link']
     cpu_closest_name = cpu_closest_match[0]['cpu']
     cpu_details_page = requests.get(
@@ -57,6 +58,13 @@ def get_cpu_info(cpu_search):
         "strong")[1].nextSibling.replace('*', "")
     cpu_error_margin = detail_pane.find_all("span")[2].text
     return (cpu_closest_name, single_thread_rating, cpu_sample_size, cpu_error_margin, cpu_details_page.url)
+
+
+def clean_input(input_string):
+    clean_string = input_string.lower()
+    clean_string = clean_string.replace(" ", "")
+    clean_string = clean_string.replace("-", "")
+    return clean_string
 
 
 def bot_message(cpu_lookup):
@@ -80,7 +88,7 @@ def bot_message(cpu_lookup):
         if int(cpu_str_rating) > str_recommended:
             user_specs = messages['above_recommended']
         bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** {cpu_str_rating}\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)](https://pcsx2.net/getting-started.html)\n\n[**Sample size:** {sample_size} | **Margin for error:** {error_margin} (CPU Benchmark Page)]({details_page})"
-        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub](https://github.com/)"
+        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
         return bot_reply
     except TypeError:
         print("Could not find CPU information.")
