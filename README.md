@@ -5,11 +5,11 @@ The PCSX2 subreddit has many new faces each day asking if their PC is capable of
 
 This bot was created to quickly scrape the PassMark CPU Benchmarks page for a provided CPU model and return the Single Thread Rating, and how it compares to the PCSX2 requirements.
 
-As a bonus, the bot also links to the newest development builds page, as of the time of this writing, the "latest stable release" of 1.4.0 on the site is several years old, and has been superceded by the 1.5.0 devolpment build that is currently being worked on.
+As a bonus, the bot also links to the newest development builds page, as of the time of this writing, the "latest stable release" of 1.4.0 on the site is several years old, and has been superseded by the 1.5.0 development build that is currently being worked on.
 
 ## How it works
 The bot is summoned with `CPUBot! <cpu_model>`, and using the CPU model as an input, it searches through the PassMark CPU list, iterating through the main table. The input is cleaned up, and matching is done with the [fuzzywuzzy module](https://github.com/seatgeek/fuzzywuzzy) to find the closest CPU match it can.
 
 This is then passed into a Reddit comment.
 
-![Image of PCSX2-CPU-Bot response](https://i.imgur.com/DRriVC3.png)
+![Image of PCSX2-CPU-Bot response](https://i.imgur.com/N7PqTeG.png)

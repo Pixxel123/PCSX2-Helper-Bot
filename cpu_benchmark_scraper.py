@@ -45,8 +45,8 @@ def get_cpu_info(cpu_search):
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
             # * show match values for debugging purposes
             print(f"{cpu_name}: {match_criteria}")
-    # ? consider setting score_cutoff value?
-    cpu_closest_match = process.extractOne(cpu_search, choices, scorer=fuzz.token_set_ratio)
+    # score_cutoff value set to lessen false positives
+    cpu_closest_match = process.extractOne(cpu_search, choices, scorer=fuzz.token_set_ratio, score_cutoff=95)
     cpu_details_link = cpu_closest_match[0]['link']
     cpu_closest_name = cpu_closest_match[0]['cpu']
     cpu_details_page = requests.get(
@@ -67,11 +67,13 @@ def clean_input(input_string):
         clean_string = input_string.split(frequency_strip, 1)[0]
         clean_string = clean_string.lower()
     except AttributeError:
+        # if no frequency values to remove, set to lower case and continue on
         clean_string = input_string.lower()
         pass
     clean_string = clean_string.replace(" ", "")
     clean_string = clean_string.replace("-", "")
-    print(f"{input_string} becomes {clean_string}")
+    # * debugging message
+    # print(f"{input_string} becomes {clean_string}")
     return clean_string
 
 
@@ -96,7 +98,7 @@ def bot_message(cpu_lookup):
         elif int(cpu_str_rating) > str_recommended:
             user_specs = messages['above_recommended']
         bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** {cpu_str_rating}\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)](https://pcsx2.net/getting-started.html)\n\n[**Sample size:** {sample_size} | **Margin for error:** {error_margin} (CPU Benchmark Page)]({details_page})"
-        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough.)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
+        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
         return bot_reply
     except TypeError:
         print("Could not find CPU information.")
@@ -116,9 +118,14 @@ def run_bot():
                         cpu_lookup = cpu_lookup.group(2)
                     comment.reply(bot_message(cpu_lookup))
                     comment = reddit.comment(id=f"{comment.id}")
+                    # Note: the Reddit API has a 1000 item limit on viewing things, so after 1000 saves, the ones prior (999 and back) will not be visible,
+                    # but reddit will still keep them saved.
+                    # ? Look into database solution for more permanence
                     comment.save()
                     print("Comment posted!")
     except Exception as error:
+        # saves comment where CPU info cannot be found so bot is not triggered again
+        comment.save()
         # dealing with low karma posting restriction
         # bot will use rate limit error to decide how long to sleep for
         time_remaining = 15
