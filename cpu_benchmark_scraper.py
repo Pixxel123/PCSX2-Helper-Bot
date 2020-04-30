@@ -34,8 +34,7 @@ def get_cpu_info(cpu_search):
     cpu_table = html.find('table', id='cputable').find('tbody')
     for row in cpu_table.find_all("tr")[1:]:  # skip header row
         cells = row.find_all("td")
-        # ignores @ clock speeds (with space)
-        cpu_name = cells[0].text.split(" @", 1)[0]
+        cpu_name = cells[0].text
         cpu_details_link = cells[0].contents[0].attrs['href']
         # ! token_set_ratio ignores word order and duplicated words
         # cpu_name and cpu_search are set to lowercase and whitespace is stripped
@@ -62,9 +61,17 @@ def get_cpu_info(cpu_search):
 
 
 def clean_input(input_string):
-    clean_string = input_string.lower()
+    try:
+        # remove CPU frequency value
+        frequency_strip = re.search(r"(\s?@?\s?)(\d\.\d{1,2})(ghz)?.*$", input_string, re.IGNORECASE).group(0)
+        clean_string = input_string.split(frequency_strip, 1)[0]
+        clean_string = clean_string.lower()
+    except AttributeError:
+        clean_string = input_string.lower()
+        pass
     clean_string = clean_string.replace(" ", "")
     clean_string = clean_string.replace("-", "")
+    print(f"{input_string} becomes {clean_string}")
     return clean_string
 
 
@@ -89,7 +96,7 @@ def bot_message(cpu_lookup):
         elif int(cpu_str_rating) > str_recommended:
             user_specs = messages['above_recommended']
         bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** {cpu_str_rating}\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)](https://pcsx2.net/getting-started.html)\n\n[**Sample size:** {sample_size} | **Margin for error:** {error_margin} (CPU Benchmark Page)]({details_page})"
-        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
+        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough.)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
         return bot_reply
     except TypeError:
         print("Could not find CPU information.")
