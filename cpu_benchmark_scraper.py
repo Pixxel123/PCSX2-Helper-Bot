@@ -28,12 +28,12 @@ subreddit = reddit.subreddit('cpubottest')
 
 def get_cpu_info(cpu_search):
     choices = []
-    url = "https://www.cpubenchmark.net/cpu_list.php"
+    url = 'https://www.cpubenchmark.net/cpu_list.php'
     lookup_page = requests.get(url)
     html = bs(lookup_page.content, 'lxml')
     cpu_table = html.find('table', id='cputable').find('tbody')
     for row in cpu_table.find_all("tr")[1:]:  # skip header row
-        cells = row.find_all("td")
+        cells = row.find_all('td')
         cpu_name = cells[0].text
         cpu_details_link = cells[0].contents[0].attrs['href']
         # ! token_set_ratio ignores word order and duplicated words
@@ -52,11 +52,11 @@ def get_cpu_info(cpu_search):
     cpu_details_page = requests.get(
         f"https://www.cpubenchmark.net/{cpu_details_link.replace('cpu_lookup', 'cpu')}")
     cpu_page = bs(cpu_details_page.content, 'lxml')
-    detail_pane = cpu_page.find('div', class_="right-desc")
+    detail_pane = cpu_page.find('div', class_='right-desc')
     single_thread_rating = detail_pane.find('strong').nextSibling
     cpu_sample_size = detail_pane.find_all(
-        "strong")[1].nextSibling.replace('*', "")
-    cpu_error_margin = detail_pane.find_all("span")[2].text
+        'strong')[1].nextSibling.replace('*', '')
+    cpu_error_margin = detail_pane.find_all('span')[2].text
     return (cpu_closest_name, single_thread_rating, cpu_sample_size, cpu_error_margin, cpu_details_page.url)
 
 
@@ -70,8 +70,8 @@ def clean_input(input_string):
         # if no frequency values to remove, set to lower case and continue on
         clean_string = input_string.lower()
         pass
-    clean_string = clean_string.replace(" ", "")
-    clean_string = clean_string.replace("-", "")
+    clean_string = clean_string.replace('', '')
+    clean_string = clean_string.replace('-', '')
     # * debugging message
     # print(f"{input_string} becomes {clean_string}")
     return clean_string
@@ -101,12 +101,12 @@ def bot_message(cpu_lookup):
         bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
         return bot_reply
     except TypeError:
-        print("Could not find CPU information.")
+        print('Could not find CPU information.')
 
 
 def run_bot():
     try:
-        print("Bot started!")
+        print('Bot started!')
         replied_to = []
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments():
@@ -122,7 +122,7 @@ def run_bot():
                     # but reddit will still keep them saved.
                     # ? Look into database solution for more permanence
                     comment.save()
-                    print("Comment posted!")
+                    print('Comment posted!')
     except Exception as error:
         # saves comment where CPU info cannot be found so bot is not triggered again
         comment.save()
@@ -130,7 +130,7 @@ def run_bot():
         # bot will use rate limit error to decide how long to sleep for
         time_remaining = 15
         error_message = str(error).split()
-        if (error_message[0] == "RATELIMIT:"):
+        if (error_message[0] == 'RATELIMIT:'):
             units = ['minute', 'minutes']
             # split rate limit warning to grab amount of time
             for i in error_message:
@@ -153,7 +153,7 @@ def run_bot():
             time.sleep(5)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     while True:
         try:
             run_bot()
