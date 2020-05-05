@@ -44,7 +44,7 @@ def get_cpu_info(cpu_search):
         if match_criteria >= 60:
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
             # * show match values for debugging purposes
-            print(f"{cpu_name}: {match_criteria}")
+            # print(f"{cpu_name}: {match_criteria}")
     # score_cutoff value set to lessen false positives
     cpu_closest_match = process.extractOne(cpu_search, choices, scorer=fuzz.token_set_ratio, score_cutoff=95)
     cpu_details_link = cpu_closest_match[0]['link']
@@ -83,7 +83,9 @@ def bot_message(cpu_lookup):
         cpu_model = cpu_info[0]
         cpu_str_rating = cpu_info[1]
         sample_size = cpu_info[2]
-        error_margin = cpu_info[3]
+        # ! Error margin output removed due to information not being necessary
+        # ! CPU page link appended to STR rating
+        # error_margin = cpu_info[3]
         details_page = cpu_info[4]
         messages = {'minimum': 'Below minimum specs for PCSX2.',
                     'above_minimum': 'Above minimum specs, but still under the recommended specs for PCSX2.',
@@ -97,7 +99,7 @@ def bot_message(cpu_lookup):
             user_specs = messages['recommended']
         elif int(cpu_str_rating) > str_recommended:
             user_specs = messages['above_recommended']
-        bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** {cpu_str_rating}\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)](https://pcsx2.net/getting-started.html)\n\n[**Sample size:** {sample_size} | **Margin for error:** {error_margin} (CPU Benchmark Page)]({details_page})"
+        bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** [{cpu_str_rating} (CPU Benchmark Page)]({details_page})\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)](https://pcsx2.net/getting-started.html)"
         bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
         return bot_reply
     except TypeError:

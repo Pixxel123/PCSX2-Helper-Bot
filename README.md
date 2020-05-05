@@ -12,4 +12,19 @@ The bot is summoned with `CPUBot! <cpu_model>`, and using the CPU model as an in
 
 This is then passed into a Reddit comment.
 
-![Image of PCSX2-CPU-Bot response](https://i.imgur.com/N7PqTeG.png)
+![Image of PCSX2-CPU-Bot response](https://i.imgur.com/ieB5eir.png)
+Version 2 of the bot removes the margin of error output as it is not relevant to most users.
+
+## Why didn't the bot respond to me?
+
+* Make sure that you are calling the bot correctly with `CPUBot! <cpu model>`
+
+  For now, the first part, `CPUBot!` **is case-sensitive**.
+
+* The bot currently does not support more than one CPU model lookup at a time.
+
+* The bot relies on fuzzy matching to find the correct model. If it less than a 95% score on the single match it finds, it will not treat it as finding a result. This is so that similar model inputs like just `AMD Ryzen 3` or `Ryzen 4` do not produce a wrong result.
+
+* The bot may be down for maintenance.
+
+* I may have run out of free dynos for the month!
