@@ -112,7 +112,8 @@ def run_bot():
         replied_to = []
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments():
-            if summon_phrase in comment.body:
+            # allows bot command to NOT be case-sensitive
+            if summon_phrase.lower() in comment.body.lower():
                 if not comment.saved:
                     cpu_lookup = re.search(
                         f"({summon_phrase})(.*)", comment.body, re.IGNORECASE)

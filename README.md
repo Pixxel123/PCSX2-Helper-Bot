@@ -19,7 +19,7 @@ Version 2 of the bot removes the margin of error output as it is not relevant to
 
 * Make sure that you are calling the bot correctly with `CPUBot! <cpu model>`
 
-  For now, the first part, `CPUBot!` **is case-sensitive**.
+  The first part, `CPUBot!` **is NOT case-sensitive**.
 
 * The bot currently does not support more than one CPU model lookup at a time.
 
