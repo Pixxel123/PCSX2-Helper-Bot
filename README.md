@@ -28,3 +28,9 @@ Version 2 of the bot removes the margin of error output as it is not relevant to
 * The bot may be down for maintenance.
 
 * I may have run out of free dynos for the month!
+
+## Upgrades to consider
+
+Saving comments is a fairly temporary solution of tracking replied to comments, as the reddit API only allows viewing a maximum of 1000 items at a time. The correct solution to handle this would be to set up a PostGreSQL database on Heroku and track the comments there, as the file system is ephemeral.
+
+As the PCSX2 subreddit is fairly low-traffic, this approach will work for a while, but it has a fundamental time-limit on it.
