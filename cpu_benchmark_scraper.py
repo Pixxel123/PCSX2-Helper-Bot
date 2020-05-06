@@ -41,12 +41,14 @@ def get_cpu_info(cpu_search):
         match_criteria = fuzz.token_set_ratio(clean_input(cpu_name), clean_input(cpu_search))
         # * show all matching criteria for debugging purposes
         # print(f"{cpu_name}: {match_criteria}")
-        if match_criteria >= 60:
+        # * add to choices list if match score meets threshold
+        if match_criteria >= 50:
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
             # * show match values for debugging purposes
-            # print(f"{cpu_name}: {match_criteria}")
+            print(f"{cpu_name}: {match_criteria}")
     # score_cutoff value set to lessen false positives
     cpu_closest_match = process.extractOne(cpu_search, choices, scorer=fuzz.token_set_ratio, score_cutoff=95)
+    # print(f"{cpu_closest_match}")
     cpu_details_link = cpu_closest_match[0]['link']
     cpu_closest_name = cpu_closest_match[0]['cpu']
     cpu_details_page = requests.get(
