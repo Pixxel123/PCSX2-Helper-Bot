@@ -101,11 +101,14 @@ def bot_message(cpu_lookup):
             user_specs = messages['recommended']
         elif int(cpu_str_rating) > str_recommended:
             user_specs = messages['above_recommended']
-        bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** [{cpu_str_rating} (CPU Benchmark Page)]({details_page})\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)](https://pcsx2.net/getting-started.html)"
-        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build}) \n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
-        return bot_reply
+        bot_reply = f"**CPU model:** {cpu_model}\n\n **CPU STR:** [{cpu_str_rating} (CPU Benchmark Page)]({details_page})\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {str_minimum} | **Recommended:** {str_recommended} (PCSX2 Requirements Page)]({pcsx2_page})"
+        bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build})"
     except TypeError:
-        print('Could not find CPU information.')
+        bot_reply = f"Sorry, I couldn't find any information on **{cpu_lookup}**.\n\n If it's not on [PassMark's CPU Benchmarks list](https://www.cpubenchmark.net/cpu_list.php), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with my summon phrase and the model and I'll try again!"
+        pass
+    bot_reply += f"\n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
+    return bot_reply
+    print('Could not find CPU information.')
 
 
 def run_bot():
