@@ -72,7 +72,7 @@ def clean_input(input_string):
         # if no frequency values to remove, set to lower case and continue on
         clean_string = input_string.lower()
         pass
-    clean_string = clean_string.replace('', '')
+    clean_string = clean_string.replace(' ', '')
     clean_string = clean_string.replace('-', '')
     # * debugging message
     # print(f"{input_string} becomes {clean_string}")
