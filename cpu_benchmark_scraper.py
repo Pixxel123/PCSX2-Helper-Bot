@@ -122,7 +122,7 @@ def run_bot():
                 if not comment.saved:
                     # regex allows cpubot to be called in the middle of most sentences
                     cpu_lookup = re.search(
-                        f"({summon_phrase})([^!,?\\\n\r\/]*)", comment.body, re.IGNORECASE)
+                        f"({summon_phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
                     if cpu_lookup:
                         cpu_lookup = cpu_lookup.group(2)
                     comment.reply(bot_message(cpu_lookup))

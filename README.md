@@ -5,25 +5,43 @@ The PCSX2 subreddit has many new faces each day asking if their PC is capable of
 
 This bot was created to quickly scrape the PassMark CPU Benchmarks page for a provided CPU model and return the Single Thread Rating, and how it compares to the PCSX2 requirements.
 
-As a bonus, the bot also links to the newest development builds page, as of the time of this writing, the "latest stable release" of 1.4.0 on the site is several years old, and has been superseded by the 1.5.0 development build that is currently being worked on.
+As a bonus, the bot also links to the newest development builds page, as of the time of this writing, the "latest stable release" of 1.4.0 on the site is several years old, and has been superseded by the 1.7.0 development build that is currently being worked on.
 
 ## How it works
-The bot is summoned with `CPUBot! <cpu_model>`, and using the CPU model as an input, it searches through the PassMark CPU list, iterating through the main table. The input is cleaned up, and matching is done with the [fuzzywuzzy module](https://github.com/seatgeek/fuzzywuzzy) to find the closest CPU match it can.
+The bot is summoned with `CPUBot! <cpu_model>`, and using the CPU model as an input, it searches through the PassMark CPU list with BeautifulSoup, iterating through the main table. The input is cleaned up as follows:
+
+ * Any frequency information is unnecessary when it concerns CPU model, so regex is used to parse the common pattern of @ x.xx GHz with `(\s?@?\s?)(\d\.\d{1,2})(ghz)?.*$` allowing optional provisioning for spaces, 1 or two digits for the frequency value and GHz itself (this is call case-insensitive) and removes it if found.
+
+ * The string is converted to lower-case.
+
+ * Spaces and hyphens are stripped out.
+
+ This is repeated for the CPU model from PassMark as well, to allow the strings to be matched more closely on a fairly unpredictable input.
+
+Matching is done with the [fuzzywuzzy module](https://github.com/seatgeek/fuzzywuzzy) to find some close matching candidates (defined as a lower score to account for variance in user input), of which these are then processed further to find a single match with a score at or over 95. User-provided CPU input is compared against the PassMark entry.
+
+If a match is found, the bot goes to the CPU's detail page and uses BeautifulSoup to scrape out the Single Thread Rating, as well as the url of the detailed benchmark page for the user to access if they wish.
+
+A link to the official PCSX2 requirements page is included for the user's information, as well as the latest development build list and a bot disclaimer.
 
 This is then passed into a Reddit comment.
 
 ![Image of PCSX2-CPU-Bot response](https://i.imgur.com/ieB5eir.png)
 Version 2 of the bot removes the margin of error output as it is not relevant to most users.
 
+The bot responds with a message if it could not find a match, asking the user to try again with some more information or corrected spelling.
+
+![Image of PCSX2-CPU-Bot no result response](https://i.imgur.com/Q3jkUf2.png)
+
 ## Why didn't the bot respond to me?
 
 * Make sure that you are calling the bot correctly with `CPUBot! <cpu model>`
 
-  The first part, `CPUBot!` **is NOT case-sensitive**.
+  The first part, `CPUBot!` **is NOT case-sensitive** and requires a space after the `!`.
 
 * The bot currently does not support more than one CPU model lookup at a time.
 
-* The bot relies on fuzzy matching to find the correct model. If it less than a 95% score on the single match it finds, it will not treat it as finding a result. This is so that similar model inputs like just `AMD Ryzen 3` or `Ryzen 4` do not produce a wrong result.
+* The bot will only reply to a comment once. Edited comments after a reply is made will not be seen.
 
 * The bot may be down for maintenance.
 
