@@ -3,17 +3,20 @@ from bs4 import BeautifulSoup as bs
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 import praw
-import config
 import re
 import time
+import os
 
+# USE FOR DEVELOPMENT ONLY, COMMENT OUT BEFORE PUSHING
+import dotenv
+dotenv.load_dotenv()
 
 reddit = praw.Reddit(
-    client_id=config.client_id,
-    client_secret=config.client_secret,
-    password=config.password,
-    user_agent=config.user_agent,
-    username=config.username)
+    client_id=os.getenv('reddit_client_id'),
+    client_secret=os.getenv('reddit_client_secret'),
+    password=os.getenv('reddit_password'),
+    user_agent=os.getenv('reddit_user_agent'),
+    username=os.getenv('reddit_username'))
 
 github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
@@ -105,7 +108,7 @@ def bot_message(cpu_lookup):
         bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build})"
     except TypeError:
         # reply if CPU information is not found
-        bot_reply = f"Sorry, I couldn't find any information on **{cpu_lookup}**.\n\n If it's not on [PassMark's CPU Benchmarks list](https://www.cpubenchmark.net/cpu_list.php), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `CPUBot! <model name>` and I'll try again!"
+        bot_reply = f"Sorry, I couldn't find any information on {cpu_lookup}.\n\n If it's not on [PassMark's CPU Benchmarks list](https://www.cpubenchmark.net/cpu_list.php), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `CPUBot! <model name>` and I'll try again!"
         pass
     bot_reply += f"\n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
     return bot_reply
