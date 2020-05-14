@@ -7,9 +7,9 @@ import re
 import time
 import os
 
-# USE FOR DEVELOPMENT ONLY, COMMENT OUT BEFORE PUSHING
-import dotenv
-dotenv.load_dotenv()
+# # USE FOR DEVELOPMENT ONLY, COMMENT OUT BEFORE PUSHING
+# import dotenv
+# dotenv.load_dotenv()
 
 reddit = praw.Reddit(
     client_id=os.getenv('reddit_client_id'),
@@ -20,13 +20,14 @@ reddit = praw.Reddit(
 
 github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
+pcsx2_page = 'https://pcsx2.net/getting-started.html'
 
 str_minimum = 1600
 str_recommended = 2100
 
 summon_phrase = 'CPUBot! '
 
-subreddit = reddit.subreddit('cpubottest')
+subreddit = reddit.subreddit('pcsx2')
 
 
 def get_cpu_info(cpu_search):
@@ -41,19 +42,21 @@ def get_cpu_info(cpu_search):
         cpu_details_link = cells[0].contents[0].attrs['href']
         # ! token_set_ratio ignores word order and duplicated words
         # cpu_name and cpu_search are set to lowercase and whitespace is stripped
-        match_criteria = fuzz.token_set_ratio(clean_input(cpu_name), clean_input(cpu_search))
+        match_criteria = fuzz.token_set_ratio(
+            clean_input(cpu_name), clean_input(cpu_search))
         # * show all matching criteria for debugging purposes
         # print(f"{cpu_name}: {match_criteria}")
-        # * add to choices list if match score meets threshold
         if match_criteria >= 50:
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
             # * show match values for debugging purposes
             print(f"{cpu_name}: {match_criteria}")
     # score_cutoff value set to lessen false positives
-    cpu_closest_match = process.extractOne(cpu_search, choices, scorer=fuzz.token_set_ratio, score_cutoff=95)
-    # print(f"{cpu_closest_match}")
+    cpu_closest_match = process.extractOne(
+        cpu_search, choices, scorer=fuzz.token_set_ratio, score_cutoff=95)
     cpu_details_link = cpu_closest_match[0]['link']
     cpu_closest_name = cpu_closest_match[0]['cpu']
+    # show output in console
+    print(f"Searching for {cpu_search}: Found: {cpu_closest_match}")
     cpu_details_page = requests.get(
         f"https://www.cpubenchmark.net/{cpu_details_link.replace('cpu_lookup', 'cpu')}")
     cpu_page = bs(cpu_details_page.content, 'lxml')
@@ -68,7 +71,8 @@ def get_cpu_info(cpu_search):
 def clean_input(input_string):
     try:
         # remove CPU frequency value
-        frequency_strip = re.search(r"(\s?@?\s?)(\d\.\d{1,2})(ghz)?.*$", input_string, re.IGNORECASE).group(0)
+        frequency_strip = re.search(
+            r"(\s?@?\s?)(\d\.\d{1,2})(ghz)?.*$", input_string, re.IGNORECASE).group(0)
         clean_string = input_string.split(frequency_strip, 1)[0]
         clean_string = clean_string.lower()
     except AttributeError:
@@ -121,7 +125,7 @@ def run_bot():
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments():
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
-            if summon_phrase.lower() in comment.body.lower() and comment.author.name != config.username:
+            if summon_phrase.lower() in comment.body.lower() and comment.author.name != os.getenv('reddit_username'):
                 if not comment.saved:
                     # regex allows cpubot to be called in the middle of most sentences
                     cpu_lookup = re.search(
@@ -158,7 +162,7 @@ def run_bot():
                             break
                         break
         #  display error type and string
-        print(f"{str(error.__class__.__name__)}: {str(error)}")
+        print(repr(error))
         #  loops backwards through seconds remaining before retry
         for i in range(time_remaining, 0, -5):
             print(f"Retrying in {i} seconds...")
@@ -167,8 +171,9 @@ def run_bot():
 
 if __name__ == '__main__':
     while True:
+        print('Bot starting...')
         try:
             run_bot()
         except Exception as error:
-            print(f"{str(error.__class__.__name__)}: {str(error)}")
+            print(repr(error))
             time.sleep(20)
