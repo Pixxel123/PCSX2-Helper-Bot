@@ -6,17 +6,12 @@ import praw
 import re
 import time
 import os
+import logging
 
-# # USE FOR DEVELOPMENT ONLY, COMMENT OUT BEFORE PUSHING
-# import dotenv
-# dotenv.load_dotenv()
+logging.basicConfig(
+    format='%(asctime)s (%(levelname)s) %(message)s (Line %(lineno)d)', level=logging.DEBUG)
 
-reddit = praw.Reddit(
-    client_id=os.getenv('reddit_client_id'),
-    client_secret=os.getenv('reddit_client_secret'),
-    password=os.getenv('reddit_password'),
-    user_agent=os.getenv('reddit_user_agent'),
-    username=os.getenv('reddit_username'))
+ENV = 'production'
 
 github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
@@ -27,7 +22,17 @@ str_recommended = 2100
 
 summon_phrase = 'CPUBot! '
 
-subreddit = reddit.subreddit('pcsx2')
+
+def bot_login():
+    logging.info('Authenticating...')
+    reddit = praw.Reddit(
+        client_id=os.getenv('reddit_client_id'),
+        client_secret=os.getenv('reddit_client_secret'),
+        password=os.getenv('reddit_password'),
+        user_agent=os.getenv('reddit_user_agent'),
+        username=os.getenv('reddit_username'))
+    logging.info(f"Authenticated as {reddit.user.me()}")
+    return reddit
 
 
 def get_cpu_info(cpu_search):
@@ -45,27 +50,29 @@ def get_cpu_info(cpu_search):
         match_criteria = fuzz.token_set_ratio(
             clean_input(cpu_name), clean_input(cpu_search))
         # * show all matching criteria for debugging purposes
-        # print(f"{cpu_name}: {match_criteria}")
+        # logging.debug(f"{cpu_name}: {match_criteria}")
         if match_criteria >= 50:
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
             # * show match values for debugging purposes
-            print(f"{cpu_name}: {match_criteria}")
+            # logging.debug(f"{cpu_name}: {match_criteria}")
     # score_cutoff value set to lessen false positives
     cpu_closest_match = process.extractOne(
         cpu_search, choices, scorer=fuzz.token_set_ratio, score_cutoff=95)
     cpu_details_link = cpu_closest_match[0]['link']
     cpu_closest_name = cpu_closest_match[0]['cpu']
     # show output in console
-    print(f"Searching for {cpu_search}: Found: {cpu_closest_match}")
+    logging.info(f"Searching for {cpu_search}: Found: {cpu_closest_match}")
     cpu_details_page = requests.get(
         f"https://www.cpubenchmark.net/{cpu_details_link.replace('cpu_lookup', 'cpu')}")
     cpu_page = bs(cpu_details_page.content, 'lxml')
     detail_pane = cpu_page.find('div', class_='right-desc')
     single_thread_rating = detail_pane.find('strong').nextSibling
-    cpu_sample_size = detail_pane.find_all(
-        'strong')[1].nextSibling.replace('*', '')
-    cpu_error_margin = detail_pane.find_all('span')[2].text
-    return (cpu_closest_name, single_thread_rating, cpu_sample_size, cpu_error_margin, cpu_details_page.url)
+    # ! cpu_sample_size is not used as it adds no real information to the user, but the scraping for it took some work
+    # ! so this is left here for reference.
+    # cpu_sample_size = detail_pane.find_all(
+    #     'strong')[1].nextSibling.replace('*', '')
+    # cpu_error_margin = detail_pane.find_all('span')[2].text
+    return (cpu_closest_name, single_thread_rating, cpu_details_page.url)
 
 
 def clean_input(input_string):
@@ -73,16 +80,16 @@ def clean_input(input_string):
         # remove CPU frequency value
         frequency_strip = re.search(
             r"(\s?@?\s?)(\d\.\d{1,2})(ghz)?.*$", input_string, re.IGNORECASE).group(0)
-        clean_string = input_string.split(frequency_strip, 1)[0]
-        clean_string = clean_string.lower()
     except AttributeError:
-        # if no frequency values to remove, set to lower case and continue on
-        clean_string = input_string.lower()
-        pass
+        # if no frequency values to remove, set input to clean_string
+        clean_string = input_string
+    else:
+        clean_string = input_string.split(frequency_strip, 1)[0]
+    clean_string = clean_string.lower()
     clean_string = clean_string.replace(' ', '')
     clean_string = clean_string.replace('-', '')
     # * debugging message
-    # print(f"{input_string} becomes {clean_string}")
+    # logging.debug(f"{input_string} becomes {clean_string}")
     return clean_string
 
 
@@ -91,11 +98,12 @@ def bot_message(cpu_lookup):
         cpu_info = get_cpu_info(cpu_lookup)
         cpu_model = cpu_info[0]
         cpu_str_rating = cpu_info[1]
-        sample_size = cpu_info[2]
+        # ! cpu_sample_size removed due to not being needed by end user
+        # sample_size = cpu_info[2]
         # ! Error margin output removed due to information not being necessary
         # ! CPU page link appended to STR rating
         # error_margin = cpu_info[3]
-        details_page = cpu_info[4]
+        details_page = cpu_info[2]
         messages = {'minimum': 'Below minimum specs for PCSX2.',
                     'above_minimum': 'Above minimum specs, but still under the recommended specs for PCSX2.',
                     'recommended': 'At recommended specs for PCSX2.',
@@ -116,16 +124,15 @@ def bot_message(cpu_lookup):
         pass
     bot_reply += f"\n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
     return bot_reply
-    print('Could not find CPU information.')
 
 
 def run_bot():
     try:
-        print('Bot started!')
+        logging.info('Bot started!')
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments():
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
-            if summon_phrase.lower() in comment.body.lower() and comment.author.name != os.getenv('reddit_username'):
+            if summon_phrase.lower() in comment.body.lower() and comment.author.name != reddit.user.me():
                 if not comment.saved:
                     # regex allows cpubot to be called in the middle of most sentences
                     cpu_lookup = re.search(
@@ -136,9 +143,10 @@ def run_bot():
                     comment = reddit.comment(id=f"{comment.id}")
                     # Note: the Reddit API has a 1000 item limit on viewing things, so after 1000 saves, the ones prior (999 and back) will not be visible,
                     # but reddit will still keep them saved.
-                    # ? Look into database solution for more permanence
+                    # If you are just checking that an item is saved, there is no limit.
+                    # However, saving an item takes an extra API call which can slow down a high-traffic bot.
                     comment.save()
-                    print('Comment posted!')
+                    logging.info('Comment posted!')
     except Exception as error:
         # saves comment where CPU info cannot be found so bot is not triggered again
         comment.save()
@@ -162,18 +170,25 @@ def run_bot():
                             break
                         break
         #  display error type and string
-        print(repr(error))
+        logging.error(repr(error))
         #  loops backwards through seconds remaining before retry
         for i in range(time_remaining, 0, -5):
-            print(f"Retrying in {i} seconds...")
+            logging.info(f"Retrying in {i} seconds...")
             time.sleep(5)
 
 
 if __name__ == '__main__':
     while True:
-        print('Bot starting...')
+        logging.info('Bot starting...')
         try:
+            reddit = bot_login()
+            if ENV == 'dev':
+                import dotenv
+                dotenv.load_dotenv()
+                subreddit = reddit.subreddit('cpubottest')
+            else:
+                subreddit = reddit.subreddit('pcsx2')
             run_bot()
         except Exception as error:
-            print(repr(error))
+            logging.error(repr(error))
             time.sleep(20)
