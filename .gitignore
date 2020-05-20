@@ -4,3 +4,5 @@ config.py
 __pycache__/config.cpython-37.pyc
 requirements.txt
 .env
+get_saved.py
+db_scraper.py

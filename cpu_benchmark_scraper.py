@@ -7,16 +7,25 @@ import re
 import time
 import os
 
-# # USE FOR DEVELOPMENT ONLY, COMMENT OUT BEFORE PUSHING
-# import dotenv
-# dotenv.load_dotenv()
+ENV = 'production'
 
+print('Authenticating...')
 reddit = praw.Reddit(
     client_id=os.getenv('reddit_client_id'),
     client_secret=os.getenv('reddit_client_secret'),
     password=os.getenv('reddit_password'),
     user_agent=os.getenv('reddit_user_agent'),
     username=os.getenv('reddit_username'))
+print(f"Authenticated as {reddit.user.me()}")
+
+# allows loading of environment variables when developing locally
+if ENV == 'dev':
+    import dotenv
+    dotenv.load_dotenv()
+    subreddit = reddit.subreddit('cpubottest')
+else:
+    subreddit = reddit.subreddit('pcsx2')
+
 
 github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
@@ -26,8 +35,6 @@ str_minimum = 1600
 str_recommended = 2100
 
 summon_phrase = 'CPUBot! '
-
-subreddit = reddit.subreddit('pcsx2')
 
 
 def get_cpu_info(cpu_search):
@@ -49,7 +56,7 @@ def get_cpu_info(cpu_search):
         if match_criteria >= 50:
             choices.append({'cpu': cpu_name, 'link': cpu_details_link})
             # * show match values for debugging purposes
-            print(f"{cpu_name}: {match_criteria}")
+            # print(f"{cpu_name}: {match_criteria}")
     # score_cutoff value set to lessen false positives
     cpu_closest_match = process.extractOne(
         cpu_search, choices, scorer=fuzz.token_set_ratio, score_cutoff=95)
@@ -125,7 +132,7 @@ def run_bot():
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments():
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
-            if summon_phrase.lower() in comment.body.lower() and comment.author.name != os.getenv('reddit_username'):
+            if summon_phrase.lower() in comment.body.lower() and comment.author.name != reddit.user.me():
                 if not comment.saved:
                     # regex allows cpubot to be called in the middle of most sentences
                     cpu_lookup = re.search(
@@ -136,7 +143,8 @@ def run_bot():
                     comment = reddit.comment(id=f"{comment.id}")
                     # Note: the Reddit API has a 1000 item limit on viewing things, so after 1000 saves, the ones prior (999 and back) will not be visible,
                     # but reddit will still keep them saved.
-                    # ? Look into database solution for more permanence
+                    # If you are just checking that an item is saved, there is no limit.
+                    # However, saving an item takes an extra API call which can slow down a high-traffic bot.
                     comment.save()
                     print('Comment posted!')
     except Exception as error:
