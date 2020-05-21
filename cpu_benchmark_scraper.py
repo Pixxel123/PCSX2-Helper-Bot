@@ -7,12 +7,22 @@ import re
 import time
 import os
 import logging
+import logging.config
 
+# Logging allows replacing print statements to show more information
+# This config outputs human-readable time, the log level, the log message and the line number this originated from
 logging.basicConfig(
     format='%(asctime)s (%(levelname)s) %(message)s (Line %(lineno)d)', level=logging.DEBUG)
 
+# PRAW seems to have its own logging which clutters up console output, so this disables everything but Python's logging
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': True
+})
+
 ENV = 'production'
 
+passmark_page = 'https://www.cpubenchmark.net/cpu_list.php'
 github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
 pcsx2_page = 'https://pcsx2.net/getting-started.html'
@@ -37,8 +47,7 @@ def bot_login():
 
 def get_cpu_info(cpu_search):
     choices = []
-    url = 'https://www.cpubenchmark.net/cpu_list.php'
-    lookup_page = requests.get(url)
+    lookup_page = requests.get(passmark_page)
     html = bs(lookup_page.content, 'lxml')
     cpu_table = html.find('table', id='cputable').find('tbody')
     for row in cpu_table.find_all("tr")[1:]:  # skip header row
@@ -120,7 +129,7 @@ def bot_message(cpu_lookup):
         bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({latest_build})"
     except TypeError:
         # reply if CPU information is not found
-        bot_reply = f"Sorry, I couldn't find any information on {cpu_lookup}.\n\n If it's not on [PassMark's CPU Benchmarks list](https://www.cpubenchmark.net/cpu_list.php), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `CPUBot! <model name>` and I'll try again!"
+        bot_reply = f"Sorry, I couldn't find any information on {cpu_lookup}.\n\n If it's not on [PassMark's CPU Benchmarks list]({passmark_page}), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `CPUBot! <model name>` and I'll try again!"
         pass
     bot_reply += f"\n\n---\n\n^(I'm a bot, and should only be used for reference (might also make mistakes sometimes, in which case adding a brand name like Intel or AMD could  help! I also don't need to know the GHz of your CPU, just the model is enough!)^) ^(if there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-CPU-Bot) \n\n[^GitHub]({github_link})"
     return bot_reply
@@ -170,7 +179,7 @@ def run_bot():
                             break
                         break
         #  display error type and string
-        logging.error(repr(error))
+        logging.exception(repr(error))
         #  loops backwards through seconds remaining before retry
         for i in range(time_remaining, 0, -5):
             logging.info(f"Retrying in {i} seconds...")
@@ -190,5 +199,5 @@ if __name__ == '__main__':
                 subreddit = reddit.subreddit('pcsx2')
             run_bot()
         except Exception as error:
-            logging.error(repr(error))
+            logging.exception(repr(error))
             time.sleep(20)

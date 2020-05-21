@@ -47,8 +47,17 @@ The bot responds with a message if it could not find a match, asking the user to
 
 * I may have run out of free dynos for the month!
 
-## Upgrades to consider
+## Notes
 
-Saving comments is a fairly temporary solution of tracking replied to comments, as the reddit API only allows viewing a maximum of 1000 items at a time. The correct solution to handle this would be to set up a PostGreSQL database on Heroku and track the comments there, as the file system is ephemeral.
+### Saving comments
+Many people use a database to store ID's of replied comments so that the bot only replies once. Instead, one can save reddit comments and use whether that is saved to check against. The Reddit API has a return limit of 1000 items for any operation involving fetching lists/data, however if you are not fetching this data and just checking whether it is saved, there is no limit. The downside is that it takes an extra API call to save an item, which means an extra second per item. Since this is not a high traffic bot, this is not a problem.
 
-As the PCSX2 subreddit is fairly low-traffic, this approach will work for a while, but it has a fundamental time-limit on it.
+### Heroku deployment
+
+Heroku deployment requires a Procfile, I have included mine as an example.
+
+# Acknowledgements
+
+1. https://github.com/kylelobo/Reddit-Bot - kylelobo
+2. https://github.com/harshibar/friendly-redditbot - harshibar
+3. The Reddit community, particularly [r/redditdev](https://old.reddit.com/r/redditdev/), [r/Python](https://old.reddit.com/r/python/), and of course, [r/PCSX2](https://old.reddit.com/r/pcsx2/)
