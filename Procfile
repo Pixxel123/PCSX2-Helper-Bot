@@ -1,1 +1,1 @@
-worker: cpu_benchmark_scraper.py
+worker: python cpu_benchmark_scraper.py
