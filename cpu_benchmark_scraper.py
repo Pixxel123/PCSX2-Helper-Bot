@@ -20,7 +20,6 @@ logging.config.dictConfig({
     'disable_existing_loggers': True
 })
 
-ENV = 'production'
 
 passmark_page = 'https://www.cpubenchmark.net/cpu_list.php'
 github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
@@ -191,12 +190,14 @@ if __name__ == '__main__':
         logging.info('Bot starting...')
         try:
             reddit = bot_login()
-            if ENV == 'dev':
+            # uses environment variable to detect whether in Heroku
+            if 'DYNO' in os.environ:
+                subreddit = reddit.subreddit('pcsx2')
+            else:
+            # if working locally, use .env files
                 import dotenv
                 dotenv.load_dotenv()
                 subreddit = reddit.subreddit('cpubottest')
-            else:
-                subreddit = reddit.subreddit('pcsx2')
             run_bot()
         except Exception as error:
             logging.exception(repr(error))
