@@ -1,3 +1,5 @@
 /.vscode
 /.venv
 /.env
+/reddit_post.md
+fuzz_test.py
