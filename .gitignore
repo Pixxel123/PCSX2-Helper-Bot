@@ -3,3 +3,13 @@
 /.env
 /reddit_post.md
 fuzz_test.py
+config.py
+.venv
+.vscode/settings.json
+__pycache__/config.cpython-37.pyc
+requirements.txt
+.env
+get_saved.py
+db_scraper.py
+/Procfile
+/README.md
