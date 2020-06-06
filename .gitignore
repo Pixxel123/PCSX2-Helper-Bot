@@ -13,3 +13,4 @@ get_saved.py
 db_scraper.py
 /Procfile
 /README.md
+/__pycache__
