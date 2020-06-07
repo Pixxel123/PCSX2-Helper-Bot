@@ -1,19 +1,115 @@
+from cpubot import CPUbot
 from wikibot import Wikibot
+import re
+import time
+import os
+import praw
+import logging
+import logging.config
 
-# summon_phrase = {'wiki': 'Wikibot! ', 'cpu': 'CPUBot! '}
+# Logging allows replacing print statements to show more information
+# This config outputs human-readable time, the log level, the log message and the line number this originated from
+logging.basicConfig(
+    format='%(asctime)s (%(levelname)s) %(message)s (Line %(lineno)d)', level=logging.INFO)
 
-# body = 'cpubot! This is a thing'
+# PRAW seems to have its own logging which clutters up console output, so this disables everything but Python's logging
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': True
+})
 
-# if summon_phrase['wiki'].lower() in body.lower():
-#     print('Wiki mode')
-# if summon_phrase['cpu'].lower() in body.lower():
-#     print('CPU mode!')
-# wikibot = Wikibot()
-# reddit = wikibot.get_games_list()
+
+github_link = 'https://github.com/Pixxel123/PCSX2-Helper-Bot'
+summon_phrase = {'wiki': 'Wikibot! ', 'cpu': 'CPUBot! '}
+
+
+def bot_login():
+    logging.info('Authenticating...')
+    reddit = praw.Reddit(
+        client_id=os.getenv('reddit_client_id'),
+        client_secret=os.getenv('reddit_client_secret'),
+        password=os.getenv('reddit_password'),
+        user_agent=os.getenv('reddit_user_agent'),
+        username=os.getenv('reddit_username'))
+    logging.info(f"Authenticated as {reddit.user.me()}")
+    return reddit
+
+
+def run_bot():
+    try:
+        logging.info('Bot started!')
+        bot_reply = ''
+        # look for summon_phrase and reply
+        for comment in subreddit.stream.comments(skip_existing=True):
+            # allows bot command to NOT be case-sensitive and ignores comments made by the bot
+            if comment.author.name != reddit.user.me() and not comment.saved:
+                if summon_phrase['wiki'].lower() in comment.body.lower():
+                    # regex allows bot to be called in the middle of most sentences
+                    search_term = re.search(
+                        f"({summon_phrase['wiki']})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+                    search_term = search_term.group(2)
+                    bot_reply += wikibot.bot_message(search_term)
+                if summon_phrase['cpu'].lower() in comment.body.lower():
+                    search_term = re.search(
+                        f"({summon_phrase['cpu']})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+                    search_term = search_term.group(2)
+                    bot_reply += cpubot.bot_message(search_term)
+                footer = f"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
+                bot_reply += footer
+                comment.reply(bot_reply)
+                comment = reddit.comment(id=f"{comment.id}")
+                comment.save()
+                logging.info('Comment posted!')
+    except Exception as error:
+        # dealing with low karma posting restriction
+        # bot will use rate limit error to decide how long to sleep for
+        time_remaining = 15
+        # timeout message has a period and single quote after 'minute'
+        error_message = str(error).strip(".'").split()
+        if (error_message[0] == 'RATELIMIT:'):
+            units = ['minute', 'minutes']
+            # split rate limit warning to grab amount of time
+            for i in error_message:
+                if (i.isdigit()):
+                    #  check if time units are present in string
+                    if any(unit in error_message for unit in units):
+                        #  if minutes, convert to seconds for sleep
+                        #  add one more minute to be safe
+                        time_remaining = int(i + 1) * 60
+                    else:
+                        #  if seconds, use directly for sleep
+                        #  add one more minute to wait
+                        time_remaining = int(i + 60)
+                        break
+        else:
+            # If not rate limited, save comment where info cannot be found
+            # so bot is not triggered again
+            comment.save()
+            logging.info("Comment saved after exception.")
+        #  display error type and string
+        logging.exception(repr(error))
+        #  loops backwards through seconds remaining before retry
+        for i in range(time_remaining, 0, -5):
+            logging.info(f"Retrying in {i} seconds...")
+            time.sleep(5)
 
 
 if __name__ == '__main__':
+    logging.info('Bot starting...')
+    cpubot = CPUbot()
     wikibot = Wikibot()
-    print('Ready!')
+    reddit = bot_login()
     while True:
-        print(wikibot.bot_message(''))
+        try:
+            # uses environment variable to detect whether in Heroku
+            if 'DYNO' in os.environ:
+                subreddit = reddit.subreddit('pcsx2')
+            else:
+                # if working locally, use .env files
+                import dotenv
+                dotenv.load_dotenv()
+                subreddit = reddit.subreddit('cpubottest')
+            run_bot()
+        except Exception as error:
+            logging.exception(repr(error))
+            time.sleep(20)
