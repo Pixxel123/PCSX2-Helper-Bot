@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup as bs
 from fuzzywuzzy import fuzz
 from fuzzywuzzy import process
 from collections import namedtuple
-import praw
 import re
 import time
 import os
@@ -94,7 +93,7 @@ class CPUbot():
                 user_specs = messages['recommended']
             elif int(cpu.single_thread_rating) > self.str_recommended:
                 user_specs = messages['above_recommended']
-            bot_reply = f"**CPU model:** {cpu.model}\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
+            bot_reply = f"\n\n### **CPU model:** {cpu.model}\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
             bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({self.latest_build})"
         except TypeError:
             # reply if CPU information is not found

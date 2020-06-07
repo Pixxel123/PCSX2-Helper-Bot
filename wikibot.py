@@ -165,14 +165,14 @@ class Wikibot:
                 issue_message += f"* {issue}\n"
         if not issues.active and not issues.fixed:
             issue_message = '\n\nNo active or fixed issues found.'
-        bot_reply_info = f"## [{game_lookup}]({self.games_list[game_lookup]})\n\n{reply_table}{issue_message}"
+        bot_reply_info = f"\n\n## [{game_lookup}]({self.games_list[game_lookup]})\n\n{reply_table}{issue_message}"
         return bot_reply_info
 
     def bot_message(self, game_lookup):
         self.game_lookup = game_lookup
         try:
             if game_lookup == '':
-                bot_reply = "I need a search term to work with! Please try `WikiBot! <game name>`"
+                bot_reply = "\n\nI need a search term to work with! Please try `WikiBot! <game name>`"
             else:
                 # run bot if not blank
                 try:
@@ -194,7 +194,7 @@ class Wikibot:
                     # Limits results so that users are not overwhelmed with links
                     limit_choices = process.extractBests(game_lookup, choices)
                     if limit_choices:
-                        bot_reply = f"No direct match found for **{game_lookup}**, displaying {len(limit_choices)} wiki results:\n\n"
+                        bot_reply = f"\n\nNo direct match found for **{game_lookup}**, displaying {len(limit_choices)} wiki results:\n\n"
                         search_results = ''
                         for result in limit_choices[:6]:
                             game_name = result[0]
@@ -203,84 +203,5 @@ class Wikibot:
                         bot_reply += "\n\nFeel free to ask me again (`WikiBot! game name`) with these game names or visit the wiki directly!\n"
         # Handles no results being found in search
         except AttributeError:
-            bot_reply = f"I'm sorry, I couldn't find any information on **{game_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your game does not exist in the [PCSX2 Wiki]({self.wiki_base_url})."
-        # Append footer to bot message
-        footer = f"\n\n---\n\n^(I'm a bot, and should only be used for reference. All of my information comes from the contributors at the) [^PCSX2 ^Wiki]({self.wiki_base_url})^. ^(If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({self.github_link})\n"
-        bot_reply += footer
+            bot_reply = f"\n\nI'm sorry, I couldn't find any information on **{game_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your game does not exist in the [PCSX2 Wiki]({self.wiki_base_url})."
         return bot_reply
-
-    # def run_bot(self):
-        # reddit = self.bot_login()
-        # games_list = self.get_games_list()
-        # try:
-        #     logging.info('Bot started!')
-        #     # look for summon_phrase and reply
-        #     for comment in subreddit.stream.comments():
-        #         # allows bot command to NOT be case-sensitive and ignores comments made by the bot
-        #         if summon_phrase.lower() in comment.body.lower() and comment.author.name != reddit.user.me():
-        #             if not comment.saved:
-        #                 # regex allows bot to be called in the middle of most sentences
-        #                 game_search = re.search(
-        #                     f"({summon_phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
-        #                 if game_search:
-        #                     game_search = game_search.group(2)
-        #                 comment.reply(self.bot_message(game_search))
-        #                 comment = reddit.comment(id=f"{comment.id}")
-        #                 # Note: the Reddit API has a 1000 item limit on viewing things, so after 1000 saves, the ones prior (999 and back) will not be visible,
-        #                 # but reddit will still keep them saved.
-        #                 # If you are just checking that an item is saved, there is no limit.
-        #                 # However, saving an item takes an extra API call which can slow down a high-traffic bot.
-        #                 comment.save()
-        #                 logging.info('Comment posted!')
-        # except Exception as error:
-        #     # dealing with low karma posting restriction
-        #     # bot will use rate limit error to decide how long to sleep for
-        #     time_remaining = 15
-        #     # timeout message has a period and single quote after 'minute'
-        #     error_message = str(error).strip(".'").split()
-        #     if (error_message[0] == 'RATELIMIT:'):
-        #         units = ['minute', 'minutes']
-        #         # split rate limit warning to grab amount of time
-        #         for i in error_message:
-        #             if (i.isdigit()):
-        #                 #  check if time units are present in string
-        #                 if any(unit in error_message for unit in units):
-        #                     #  if minutes, convert to seconds for sleep
-        #                     #  add one more minute to be safe
-        #                     time_remaining = int(i + 1) * 60
-        #                 else:
-        #                     #  if seconds, use directly for sleep
-        #                     #  add one more minute to wait
-        #                     time_remaining = int(i + 60)
-        #                     break
-        #     else:
-        #         # If not rate limited, save comment where info cannot be found
-        #         # so bot is not triggered again
-        #         comment.save()
-        #         logging.info("Comment saved after exception.")
-        #     #  display error type and string
-        #     logging.exception(repr(error))
-        #     #  loops backwards through seconds remaining before retry
-        #     for i in range(time_remaining, 0, -5):
-        #         logging.info(f"Retrying in {i} seconds...")
-        #         time.sleep(5)
-
-
-# if __name__ == '__main__':
-#     while True:
-#         logging.info('Bot starting...')
-#         try:
-#             wikibot = Wikibot()
-#             reddit = wikibot.bot_login()
-#             # uses environment variable to detect whether in Heroku
-#             if 'DYNO' in os.environ:
-#                 subreddit = reddit.subreddit('pcsx2')
-#             else:
-#                 # if working locally, use .env files
-#                 import dotenv
-#                 dotenv.load_dotenv()
-#                 subreddit = reddit.subreddit('cpubottest')
-#             wikibot.run_bot()
-#         except Exception as error:
-#             logging.exception(repr(error))
-#             time.sleep(20)

@@ -38,22 +38,22 @@ def bot_login():
 def run_bot():
     try:
         logging.info('Bot started!')
-        bot_reply = ''
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments(skip_existing=True):
+            bot_reply = ''
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
             if comment.author.name != reddit.user.me() and not comment.saved:
+                if summon_phrase['cpu'].lower() in comment.body.lower():
+                    search_term = re.search(
+                        f"({summon_phrase['cpu']})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+                    search_term = search_term.group(2)
+                    bot_reply += cpubot.bot_message(search_term)
                 if summon_phrase['wiki'].lower() in comment.body.lower():
                     # regex allows bot to be called in the middle of most sentences
                     search_term = re.search(
                         f"({summon_phrase['wiki']})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
                     search_term = search_term.group(2)
                     bot_reply += wikibot.bot_message(search_term)
-                if summon_phrase['cpu'].lower() in comment.body.lower():
-                    search_term = re.search(
-                        f"({summon_phrase['cpu']})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
-                    search_term = search_term.group(2)
-                    bot_reply += cpubot.bot_message(search_term)
                 footer = f"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
                 bot_reply += footer
                 comment.reply(bot_reply)
