@@ -1,5 +1,6 @@
 from cpubot import CPUbot
 from wikibot import Wikibot
+from gpubot import GPUbot
 import re
 import time
 import os
@@ -20,7 +21,7 @@ logging.config.dictConfig({
 
 
 github_link = 'https://github.com/Pixxel123/PCSX2-Helper-Bot'
-summon_phrase = {'wiki': 'Wikibot! ', 'cpu': 'CPUBot! '}
+summon_phrase = {'wiki': 'Wikibot! ', 'cpu': 'CPUBot! ', 'gpu': 'GPUBot! '}
 
 
 def bot_login():
@@ -35,6 +36,14 @@ def bot_login():
     return reddit
 
 
+def generate_bot_message(comment, bot_reply, phrase):
+    if phrase.lower() in comment.body.lower():
+        search_term = re.search(
+            f"({phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+        search_term = search_term.group(2)
+        bot_reply += cpubot.bot_message(search_term)
+
+
 def run_bot():
     try:
         logging.info('Bot started!')
@@ -43,17 +52,9 @@ def run_bot():
             bot_reply = ''
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
             if comment.author.name != reddit.user.me() and not comment.saved:
-                if summon_phrase['cpu'].lower() in comment.body.lower():
-                    search_term = re.search(
-                        f"({summon_phrase['cpu']})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
-                    search_term = search_term.group(2)
-                    bot_reply += cpubot.bot_message(search_term)
-                if summon_phrase['wiki'].lower() in comment.body.lower():
-                    # regex allows bot to be called in the middle of most sentences
-                    search_term = re.search(
-                        f"({summon_phrase['wiki']})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
-                    search_term = search_term.group(2)
-                    bot_reply += wikibot.bot_message(search_term)
+                generate_bot_message(comment, bot_reply, summon_phrase['cpu'])
+                generate_bot_message(comment, bot_reply, summon_phrase['gpu'])
+                generate_bot_message(comment, bot_reply, summon_phrase['wiki'])
                 footer = f"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
                 bot_reply += footer
                 comment.reply(bot_reply)
@@ -97,6 +98,7 @@ def run_bot():
 if __name__ == '__main__':
     logging.info('Bot starting...')
     cpubot = CPUbot()
+    gpubot = GPUbot()
     wikibot = Wikibot()
     reddit = bot_login()
     while True:
