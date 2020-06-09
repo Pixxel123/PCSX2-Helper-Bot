@@ -37,24 +37,28 @@ def bot_login():
 
 
 def generate_bot_message(comment, bot_reply, phrase):
-    if phrase.lower() in comment.body.lower():
-        search_term = re.search(
-            f"({phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
-        search_term = search_term.group(2)
-        bot_reply += cpubot.bot_message(search_term)
+    try:
+        if phrase.lower() in comment.body.lower():
+            search_term = re.search(
+                f"({phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+            search_term = search_term.group(2)
+            bot_reply += cpubot.bot_message(search_term)
+            return bot_reply
+    except TypeError:
+        pass
 
 
 def run_bot():
     try:
-        logging.info('Bot started!')
+        logging.info(f"Bot started! Watching comment stream in r/{subreddit}...")
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments(skip_existing=True):
             bot_reply = ''
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
             if comment.author.name != reddit.user.me() and not comment.saved:
-                generate_bot_message(comment, bot_reply, summon_phrase['cpu'])
-                generate_bot_message(comment, bot_reply, summon_phrase['gpu'])
-                generate_bot_message(comment, bot_reply, summon_phrase['wiki'])
+                bot_reply += generate_bot_message(comment, bot_reply, summon_phrase['cpu'])
+                bot_reply += generate_bot_message(comment, bot_reply, summon_phrase['gpu'])
+                bot_reply += generate_bot_message(comment, bot_reply, summon_phrase['wiki'])
                 footer = f"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
                 bot_reply += footer
                 comment.reply(bot_reply)

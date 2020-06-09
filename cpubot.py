@@ -28,8 +28,6 @@ class CPUbot():
         self.github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
         self.latest_build = 'https://buildbot.orphis.net/pcsx2/'
         self.pcsx2_page = 'https://pcsx2.net/getting-started.html'
-        self.str_minimum = 1600
-        self.str_recommended = 2100
         self.cpu_list = self.get_cpu_list()
 
     def get_cpu_list(self):
@@ -79,21 +77,24 @@ class CPUbot():
         return cpu_info
 
     def display_cpu_info(self, cpu_lookup):
+        self.str_minimum = 1600
+        self.str_recommended = 2100
         try:
             cpu = self.get_cpu_info(cpu_lookup)
-            messages = {'minimum': 'Below minimum specs for PCSX2.',
-                        'above_minimum': 'Above minimum specs, but still under the recommended specs for PCSX2.',
-                        'recommended': 'At recommended specs for PCSX2.',
-                        'above_recommended': 'Above recommended specs for PCSX2.'}
-            if int(cpu.single_thread_rating) < self.str_minimum:
-                user_specs = messages['minimum']
-            elif self.str_minimum < int(cpu.single_thread_rating) < self.str_recommended:
-                user_specs = messages['above_minimum']
-            elif int(cpu.single_thread_rating) == self.str_recommended:
-                user_specs = messages['recommended']
-            elif int(cpu.single_thread_rating) > self.str_recommended:
-                user_specs = messages['above_recommended']
-            bot_reply = f"\n\n### **{cpu.model}**\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})\n\n **PCSX2 specs:** {user_specs}\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
+            cpu_rating = [(0, 'Awful'),
+                          (800, 'Very slow'),
+                          (1200, 'OK for 2D games'),
+                          (1600, 'OK for 3D games'),
+                          (2000, 'Good for most games'),
+                          (2400, 'Great for most'),
+                          (2800, 'Overkill')]
+            result = ""
+            for threshold, cpu_message in cpu_rating:
+                if int(cpu.single_thread_rating) >= threshold:
+                    result = cpu_message
+                else:
+                    break
+            bot_reply = f"\n\n### **{cpu.model}**\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})\n\n **Performance Score:** {cpu.single_thread_rating} ({cpu_message})\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
             bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({self.latest_build})"
         except TypeError:
             # reply if CPU information is not found
