@@ -1,14 +1,12 @@
-import requests
-from bs4 import BeautifulSoup as bs
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
-from collections import namedtuple
-import re
-import time
-import os
 import logging
 import logging.config
+import os
+import re
+from collections import namedtuple
 
+import requests
+from bs4 import BeautifulSoup as bs
+from fuzzywuzzy import fuzz, process
 
 # Logging allows replacing print statements to show more information
 # This config outputs human-readable time, the log level, the log message and the line number this originated from
@@ -31,7 +29,6 @@ class GPUbot():
         self.g3d_minimum = 3000
         self.g3d_recommended = 6000
         self.pcsx2_page = 'https://pcsx2.net/getting-started.html'
-
 
     def get_gpu_list(self):
         logging.info('Getting GPU list from PassMark...')
