@@ -96,7 +96,7 @@ class CPUbot():
                     break
             bot_reply = f"\n\n### **{cpu.model}**\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})\n\n **Performance:** {cpu_message}\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
             bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({self.latest_build})"
-#        except TypeError:
+        except TypeError:
             # reply if CPU information is not found
             bot_reply = f"Sorry, I couldn't find any information on {cpu_lookup}.\n\n If it's not on [PassMark's CPU Benchmarks list]({self.passmark_page}), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `CPUBot! <model name>` and I'll try again!"
             pass
