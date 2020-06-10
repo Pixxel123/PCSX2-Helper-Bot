@@ -165,7 +165,7 @@ class Wikibot:
                 issue_message += f"* {issue}\n"
         if not issues.active and not issues.fixed:
             issue_message = '\n\nNo active or fixed issues found.'
-        bot_reply_info = f"\n\n## [{game_lookup}]({self.games_list[game_lookup]})\n\n{reply_table}{issue_message}"
+        bot_reply_info = f"\n\n## **[{game_lookup}]({self.games_list[game_lookup]})**\n\n{reply_table}{issue_message}"
         return bot_reply_info
 
     def bot_message(self, game_lookup):

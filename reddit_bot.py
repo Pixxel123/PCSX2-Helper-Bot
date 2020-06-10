@@ -40,7 +40,7 @@ def generate_bot_message(comment, bot_reply, phrase, bot_choice):
     search_term = re.search(
         f"({phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
     search_term = search_term.group(2)
-    bot_reply += bot_choice.bot_message(search_term)
+    bot_reply = bot_choice.bot_message(search_term)
     return bot_reply
 
 
