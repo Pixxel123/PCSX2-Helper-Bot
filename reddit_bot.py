@@ -36,29 +36,32 @@ def bot_login():
     return reddit
 
 
-def generate_bot_message(comment, bot_reply, phrase):
-    try:
-        if phrase.lower() in comment.body.lower():
-            search_term = re.search(
-                f"({phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
-            search_term = search_term.group(2)
-            bot_reply += cpubot.bot_message(search_term)
-            return bot_reply
-    except TypeError:
-        pass
+def generate_bot_message(comment, bot_reply, phrase, bot_choice):
+    search_term = re.search(
+        f"({phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+    search_term = search_term.group(2)
+    bot_reply += bot_choice.bot_message(search_term)
+    return bot_reply
 
 
 def run_bot():
     try:
-        logging.info(f"Bot started! Watching comment stream in r/{subreddit}...")
+        logging.info(
+            f"Bot started! Watching comment stream in r/{subreddit}...")
         # look for summon_phrase and reply
         for comment in subreddit.stream.comments(skip_existing=True):
-            bot_reply = ''
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
             if comment.author.name != reddit.user.me() and not comment.saved:
-                bot_reply += generate_bot_message(comment, bot_reply, summon_phrase['cpu'])
-                bot_reply += generate_bot_message(comment, bot_reply, summon_phrase['gpu'])
-                bot_reply += generate_bot_message(comment, bot_reply, summon_phrase['wiki'])
+                bot_reply = ''
+                if summon_phrase['cpu'].lower() in comment.body.lower():
+                    bot_reply += generate_bot_message(
+                        comment, bot_reply, summon_phrase['cpu'], cpubot)
+                if summon_phrase['gpu'].lower() in comment.body.lower():
+                    bot_reply += generate_bot_message(
+                        comment, bot_reply, summon_phrase['gpu'], gpubot)
+                if summon_phrase['wiki'].lower() in comment.body.lower():
+                    bot_reply += generate_bot_message(
+                        comment, bot_reply, summon_phrase['wiki'], wikibot)
                 footer = f"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
                 bot_reply += footer
                 comment.reply(bot_reply)
