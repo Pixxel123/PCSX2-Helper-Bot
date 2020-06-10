@@ -1,12 +1,15 @@
-from cpubot import CPUbot
-from wikibot import Wikibot
-from gpubot import GPUbot
-import re
-import time
-import os
-import praw
 import logging
 import logging.config
+import os
+import re
+import time
+
+import praw
+
+from cpubot import CPUbot
+from gpubot import GPUbot
+from wikibot import Wikibot
+from helperbot import Helperbot
 
 # Logging allows replacing print statements to show more information
 # This config outputs human-readable time, the log level, the log message and the line number this originated from
@@ -21,7 +24,8 @@ logging.config.dictConfig({
 
 
 github_link = 'https://github.com/Pixxel123/PCSX2-Helper-Bot'
-summon_phrase = {'wiki': 'Wikibot! ', 'cpu': 'CPUBot! ', 'gpu': 'GPUBot! ', 'help': 'HelperBot!'}
+summon_phrase = {'wiki': 'Wikibot!', 'cpu': 'CPUBot!',
+                 'gpu': 'GPUBot!', 'help': 'HelperBot!'}
 
 
 def bot_login():
@@ -38,7 +42,7 @@ def bot_login():
 
 def generate_bot_message(comment, bot_reply, phrase, bot_choice):
     search_term = re.search(
-        f"({phrase})([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+        fr"({phrase})\s([^!,?\n\r]*)", comment.body, re.IGNORECASE)
     search_term = search_term.group(2)
     bot_reply = bot_choice.bot_message(search_term)
     return bot_reply
@@ -62,7 +66,10 @@ def run_bot():
                 if summon_phrase['wiki'].lower() in comment.body.lower():
                     bot_reply += generate_bot_message(
                         comment, bot_reply, summon_phrase['wiki'], wikibot)
-                footer = f"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
+                if summon_phrase['help'].lower() in comment.body.lower():
+                    bot_reply += generate_bot_message(
+                        comment, bot_reply, summon_phrase['help'], helperbot)
+                footer = fr"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
                 bot_reply += footer
                 comment.reply(bot_reply)
                 comment = reddit.comment(id=f"{comment.id}")
@@ -107,6 +114,7 @@ if __name__ == '__main__':
     cpubot = CPUbot()
     gpubot = GPUbot()
     wikibot = Wikibot()
+    helperbot = Helperbot()
     reddit = bot_login()
     while True:
         try:
