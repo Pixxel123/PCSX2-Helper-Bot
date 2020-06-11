@@ -63,19 +63,22 @@ class GPUbot():
     def display_gpu_info(self, gpu_lookup):
         try:
             gpu = self.get_gpu_info(gpu_lookup)
-            messages = {'minimum': 'Below minimum specs for PCSX2.',
-                        'above_minimum': 'Above minimum specs, but still under the recommended specs for PCSX2.',
-                        'recommended': 'At recommended specs for PCSX2.',
-                        'above_recommended': 'Above recommended specs for PCSX2.'}
-            if int(gpu.g3d_mark) < self.g3d_minimum:
-                user_specs = messages['minimum']
-            elif self.g3d_minimum < int(gpu.g3d_mark) < self.g3d_recommended:
-                user_specs = messages['above_minimum']
-            elif int(gpu.g3d_mark) == self.g3d_recommended:
-                user_specs = messages['recommended']
-            elif int(gpu.g3d_mark) > self.g3d_recommended:
-                user_specs = messages['above_recommended']
-            bot_reply = f"\n\n### **{gpu.model}**\n\n **GPU G3D Mark:** [{gpu.g3d_mark} (GPU Benchmark Page)]({gpu.details_page})\n\n **PCSX2 specs:** {user_specs}\n\n [PassMark G3D Mark **Minimum:** {self.g3d_minimum} | **Recommended:** {self.g3d_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
+            gpu_rating = [(0, 'Slow'),
+                          (360, 'Native'),
+                          (1720, '2x Native (~720p)'),
+                          (3230, '3x Native (~1080p)'),
+                          (4890, '4x Native (~2K)'),
+                          (6700, '5x Native (~3K)'),
+                          (8660, '6x Native (~4K)'),
+                          (13030, '8x Native (~5K)')]
+            for threshold, gpu_message in gpu_rating:
+                if int(gpu.g3d_mark) >= threshold:
+                    gpu_performance = gpu_message
+                else:
+                    break
+            bot_reply = f"\n\n### **{gpu.model}**\n\n **GPU G3D Mark:** [{gpu.g3d_mark} (GPU Benchmark Page)]({gpu.details_page})"
+            bot_reply += f"\n\n **Performance:** {gpu_performance}\n\n [PassMark G3D Mark **Minimum:** {self.g3d_minimum} | **Recommended:** {self.g3d_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
+            bot_reply += '\n\n**These ratings should only be used as a rough guide** as some games are unusually demanding.'
             bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({self.latest_build})"
         except TypeError:
             # reply if CPU information is not found
