@@ -24,7 +24,7 @@ logging.config.dictConfig({
 
 
 github_link = 'https://github.com/Pixxel123/PCSX2-Helper-Bot'
-summon_phrase = {'wiki': 'Wikibot!', 'cpu': 'CPUBot!',
+summon_phrase = {'wiki': 'WikiBot!', 'cpu': 'CPUBot!',
                  'gpu': 'GPUBot!', 'help': 'HelperBot!'}
 
 
@@ -56,25 +56,30 @@ def run_bot():
         for comment in subreddit.stream.comments(skip_existing=True):
             # allows bot command to NOT be case-sensitive and ignores comments made by the bot
             if comment.author.name != reddit.user.me() and not comment.saved:
-                bot_reply = ''
-                if summon_phrase['cpu'].lower() in comment.body.lower():
-                    bot_reply += generate_bot_message(
-                        comment, bot_reply, summon_phrase['cpu'], cpubot)
-                if summon_phrase['gpu'].lower() in comment.body.lower():
-                    bot_reply += generate_bot_message(
-                        comment, bot_reply, summon_phrase['gpu'], gpubot)
-                if summon_phrase['wiki'].lower() in comment.body.lower():
-                    bot_reply += generate_bot_message(
-                        comment, bot_reply, summon_phrase['wiki'], wikibot)
-                if summon_phrase['help'].lower() in comment.body.lower():
-                    bot_reply += generate_bot_message(
-                        comment, bot_reply, summon_phrase['help'], helperbot)
-                footer = f"\n\n---\n\n^(Check my commands by commenting `HelperBot! commands`. I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
-                bot_reply += footer
-                comment.reply(bot_reply)
-                comment = reddit.comment(id=f"{comment.id}")
-                comment.save()
-                logging.info('Comment posted!')
+                try:
+                    bot_reply = ''
+                    if summon_phrase['cpu'].lower() in comment.body.lower():
+                        bot_reply += generate_bot_message(
+                            comment, bot_reply, summon_phrase['cpu'], cpubot)
+                    if summon_phrase['gpu'].lower() in comment.body.lower():
+                        bot_reply += generate_bot_message(
+                            comment, bot_reply, summon_phrase['gpu'], gpubot)
+                    if summon_phrase['wiki'].lower() in comment.body.lower():
+                        bot_reply += generate_bot_message(
+                            comment, bot_reply, summon_phrase['wiki'], wikibot)
+                    if summon_phrase['help'].lower() in comment.body.lower():
+                        bot_reply += generate_bot_message(
+                            comment, bot_reply, summon_phrase['help'], helperbot)
+                    # only appends footer if bot_reply has a value to prevent triggering on comments where bot isn't called.
+                    if bot_reply:
+                        footer = f"\n\n---\n\n^(Check my commands by commenting `HelperBot! commands`. I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
+                        bot_reply += footer
+                        comment.reply(bot_reply)
+                        comment = reddit.comment(id=f"{comment.id}")
+                        comment.save()
+                        logging.info('Comment posted!')
+                except:
+                    pass
     except Exception as error:
         # dealing with low karma posting restriction
         # bot will use rate limit error to decide how long to sleep for

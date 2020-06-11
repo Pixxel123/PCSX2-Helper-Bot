@@ -22,5 +22,13 @@ class Helperbot():
         if command == 'steam':
             bot_reply = f"### **A guide to using your DS4 and other controllers via Steam:**\n\nA basic guide to setting up your controller:\n\n{self.steam_controller_tutorial}"
         if command == 'commands':
-            bot_reply = "I respond to the following commands (**NOTE:** The bot call is not case-sensitive):\n\n`GPUBot! gpu model` - Find graphics card G3D mark and how it performs with PCSX2\n\n`CPUBot! cpu model` - Find processor Single Thread Rating and how it performs with PCSX2\n\n`WikiBot! game name` - Find game from PCSX2 wiki and lists active and fixed issues if available\n\n`HelperBot! support` - A guideline for asking good questions and getting better support with issues\n\n`HelperBot! specs` - Shows how to find CPU and GPU models in Windows 10\n\n`HelperBot! steam` - How to set up DualShock4 or other controllers on PCSX2 via Steam\n\n`HelperBot! commands` - Shows this message."
+            bot_reply = "I respond to the following commands (**NOTE:** The bot call is not case-sensitive):"
+            bot_reply += "\n\n`GPUBot! gpu model` - Find graphics card G3D mark and how it performs with PCSX2"
+            bot_reply += "\n\n`CPUBot! cpu model` - Find processor Single Thread Rating and how it performs with PCSX2"
+            bot_reply += "\n\n`WikiBot! game name` - Find game from PCSX2 wiki and lists active and fixed issues if available"
+            bot_reply += "\n\n`HelperBot! support` - A guideline for asking good questions and getting better support with issues"
+            bot_reply += "\n\n`HelperBot! specs` - Shows how to find CPU and GPU models in Windows 10"
+            bot_reply += "\n\n`HelperBot! steam` - How to set up DualShock4 or other controllers on PCSX2 via Steam"
+            bot_reply += "\n\n`HelperBot! commands` - Shows this message."
+            bot_reply += "\n\nPlease be aware that you can have one of each bot call in the same comment, such as `CPUBot!` and `WikiBot!`, but for multiple `HelperBot!` commands, each bot call and command must be made in a separate comment."
         return bot_reply
