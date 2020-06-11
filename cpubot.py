@@ -87,13 +87,15 @@ class CPUbot():
                           (2000, 'Good for most games'),
                           (2400, 'Great for most games'),
                           (2800, 'Overkill')]
-            result = ""
             for threshold, cpu_message in cpu_rating:
                 if int(cpu.single_thread_rating) >= threshold:
-                    result = cpu_message
+                    cpu_performance = cpu_message
                 else:
                     break
-            bot_reply = f"\n\n### **{cpu.model}**\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})\n\n **Performance:** {cpu_message}\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
+            bot_reply = f"\n\n### **{cpu.model}**\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})"
+            bot_reply += f"\n\n **Performance:** {cpu_performance}"
+            bot_reply += '\n\n**These ratings should only be used as a rough guide** as some games are unusually demanding.'
+            bot_reply += f"\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
             bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({self.latest_build})"
         except TypeError:
             # reply if CPU information is not found

@@ -16,7 +16,7 @@ class Helperbot():
         bot_reply = ''
         command = command.lower()
         if command == 'support':
-            bot_reply = "### **Getting Help on r/PCSX2**\n\n1) Please have the following information ready:\n\n- What PCSX2 version you are using. 'Latest' is not helpful, please look at the actual version number (Found at the top of your PCSX2 window if you're not in fullscreen).\n- What CPU and GPU your PC has. The `>specs` command will show you where you can find these on Windows 10.\n- What specific game(s) you are having problems with.\n\n2) Ask your question! Don't worry about asking  (as long as your question falls within the rules)."
+            bot_reply = "### **Getting Help on r/PCSX2**\n\n1) Please have the following information ready:\n\n- What PCSX2 version you are using. 'Latest' is not helpful, please look at the actual version number (Found at the top of your PCSX2 window if you're not in fullscreen).\n- What CPU and GPU your PC has. The `HelperBot! specs` command will show you where you can find these on Windows 10.\n- What specific game(s) you are having problems with.\n\n2) Ask your question! Don't worry about asking  (as long as your question falls within the rules)."
         if command == 'specs':
             bot_reply = f"### **Finding PC specs on Windows 10:**\n\nOpen Task Manager by pressing 'Ctrl + Shift + Esc', then follow these screenshots to locate your CPU and GPU: [SPECS SCREENSHOT]({self.windows_specs_image})"
         if command == 'steam':

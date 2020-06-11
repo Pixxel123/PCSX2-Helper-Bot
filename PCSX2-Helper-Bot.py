@@ -69,7 +69,7 @@ def run_bot():
                 if summon_phrase['help'].lower() in comment.body.lower():
                     bot_reply += generate_bot_message(
                         comment, bot_reply, summon_phrase['help'], helperbot)
-                footer = fr"\n\n---\n\n^(I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
+                footer = f"\n\n---\n\n^(Check my commands by commenting `HelperBot! commands`. I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
                 bot_reply += footer
                 comment.reply(bot_reply)
                 comment = reddit.comment(id=f"{comment.id}")
