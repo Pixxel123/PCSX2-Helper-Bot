@@ -12,6 +12,5 @@ requirements.txt
 get_saved.py
 db_scraper.py
 /Procfile
-/README.md
 /__pycache__
 /src/__pycache__
