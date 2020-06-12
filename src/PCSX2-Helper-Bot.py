@@ -42,9 +42,15 @@ def bot_login():
 
 def generate_bot_message(comment, bot_reply, phrase, bot_choice):
     search_term = re.search(
-        fr"({phrase})\s([^!,?\n\r]*)", comment.body, re.IGNORECASE)
+        fr"({phrase})\s([^!?\n\r]*)", comment.body, re.IGNORECASE)
     search_term = search_term.group(2)
-    bot_reply = bot_choice.bot_message(search_term)
+    search_options = []
+    # allows looking up of multiple items by the user
+    for search in search_term.split(', '):
+        bot_reply = bot_choice.bot_message(search.strip())
+        search_options.append(bot_reply)
+    # line break and separator added for visual clarity
+    bot_reply = '\n\n---\n\n'.join(search_options)
     return bot_reply
 
 

@@ -39,7 +39,17 @@ The bot also has several helper commands for common questions and issues under t
 
    Wikibot! Jak II
    ```
-   Just note that HelperBot only takes one command per comment, and the CPU, GPU and Wiki commands only take one item (be it a CPU model, a GPU or a game name).
+   The bot supports multiple lookups/help commands as long as they're separated by a comma. So the following input will reply in one comment:
+
+   ```
+   These games can be fairly demanding for your CPU!
+
+   Wikibot! Jak II, Burnout 3
+
+   CPUBot! i5-4690k
+   ```
+   ![Multiple query response example](https://i.imgur.com/1J3Ba30.png)
+   Here we see how multiple queries are responded to in one reply.
 
 ## Why didn't the bot respond to me?
 
@@ -55,5 +65,11 @@ The bot also has several helper commands for common questions and issues under t
 
 * The bot may be down for maintenance.
 
-* I may have run out of free dynos for the month!
+* I may have run out of free Heroku dynos for the month!
+
+# Acknowledgements
+
+1. https://github.com/kylelobo/Reddit-Bot - kylelobo
+2. https://github.com/harshibar/friendly-redditbot - harshibar
+3. The Reddit community, particularly [r/redditdev](https://old.reddit.com/r/redditdev/), [r/Python](https://old.reddit.com/r/python/), and of course, [r/PCSX2](https://old.reddit.com/r/pcsx2/)
 
