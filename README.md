@@ -57,8 +57,6 @@ The bot also has several helper commands for common questions and issues under t
 
   The first part of the bot call, `CPUBot!`, `GPUBot!`, etc **is NOT case-sensitive** and requires a space after the `!`.
 
-* The bot currently does not support more than one CPU or GPU model lookup at a time.
-
 * The bot will only reply to a comment once. Edited comments after a reply is made will not be seen.
 
 * The bot will not see comments between it going down and starting back up, as it will pull from new submissions upon starting. In which case, try again in a few minutes.
