@@ -79,7 +79,7 @@ class GPUbot():
             bot_reply += f"\n\n **Performance:** {gpu_performance}\n\n [PassMark G3D Mark **Minimum:** {self.g3d_minimum} | **Recommended:** {self.g3d_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
         except TypeError:
             # reply if CPU information is not found
-            bot_reply = f"Sorry, I couldn't find any information on {gpu_lookup}.\n\n If it's not on [PassMark's GPU Benchmarks list]({self.passmark_gpu_page}), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `GPUBot! model name` and I'll try again!"
+            bot_reply = f"\n\nSorry, I couldn't find any information on {gpu_lookup}.\n\n If it's not on [PassMark's GPU Benchmarks list]({self.passmark_gpu_page}), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `GPUBot! model name` and I'll try again!"
             pass
         return bot_reply
 
@@ -90,16 +90,17 @@ class GPUbot():
                 choices = []
                 for gpu in self.gpu_list:
                     match_criteria = fuzz.token_set_ratio(gpu, gpu_lookup)
-                    if match_criteria >= 82:
+                    if match_criteria >= 70:
                         choices.append(gpu)
                 closest_match = process.extractOne(
-                    gpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=85)
+                    gpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=70)
+                logging.info(f"{gpu_lookup}: {closest_match}")
                 closest_match_name = closest_match[0]
                 bot_reply = self.display_gpu_info(closest_match_name)
             except TypeError:
                 limit_choices = process.extractBests(gpu_lookup, choices)
                 if limit_choices:
-                    bot_reply = f"No direct match found for **{gpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
+                    bot_reply = f"\n\nNo direct match found for **{gpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
                     search_results = ''
                     for result in limit_choices[:6]:
                         gpu_name = result[0]
