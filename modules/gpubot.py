@@ -92,8 +92,10 @@ class GPUbot():
                     match_criteria = fuzz.token_set_ratio(gpu, gpu_lookup)
                     if match_criteria >= 70:
                         choices.append(gpu)
+                # Not specifying scorer allows default use of WRatio()
+                # which is a weighted combination of the four fuzz ratios
                 closest_match = process.extractOne(
-                    gpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=70)
+                    gpu_lookup, choices, score_cutoff=70)
                 logging.info(f"{gpu_lookup}: {closest_match}")
                 closest_match_name = closest_match[0]
                 bot_reply = self.display_gpu_info(closest_match_name)
