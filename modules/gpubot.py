@@ -24,7 +24,6 @@ class GPUbot():
 
     def __init__(self):
         self.passmark_gpu_page = 'https://www.videocardbenchmark.net/gpu_list.php'
-        self.latest_build = 'https://buildbot.orphis.net/pcsx2/'
         self.gpu_list = self.get_gpu_list()
         self.g3d_minimum = 3000
         self.g3d_recommended = 6000
@@ -78,8 +77,6 @@ class GPUbot():
                     break
             bot_reply = f"\n\n### **{gpu.model}**\n\n **GPU G3D Mark:** [{gpu.g3d_mark} (GPU Benchmark Page)]({gpu.details_page})"
             bot_reply += f"\n\n **Performance:** {gpu_performance}\n\n [PassMark G3D Mark **Minimum:** {self.g3d_minimum} | **Recommended:** {self.g3d_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
-            bot_reply += '\n\n**These ratings should only be used as a rough guide** as some games are unusually demanding.'
-            bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({self.latest_build})"
         except TypeError:
             # reply if CPU information is not found
             bot_reply = f"Sorry, I couldn't find any information on {gpu_lookup}.\n\n If it's not on [PassMark's GPU Benchmarks list]({self.passmark_gpu_page}), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `GPUBot! model name` and I'll try again!"
@@ -95,8 +92,6 @@ class GPUbot():
                     match_criteria = fuzz.token_set_ratio(gpu, gpu_lookup)
                     if match_criteria >= 82:
                         choices.append(gpu)
-                # Not specifying scorer allows default use of WRatio()
-                # which is a weighted combination of the four fuzz ratios
                 closest_match = process.extractOne(
                     gpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=85)
                 closest_match_name = closest_match[0]

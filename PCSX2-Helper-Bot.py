@@ -24,6 +24,7 @@ logging.config.dictConfig({
 
 
 github_link = 'https://github.com/Pixxel123/PCSX2-Helper-Bot'
+latest_build = 'https://buildbot.orphis.net/pcsx2/'
 summon_phrase = {'wiki': 'WikiBot!', 'cpu': 'CPUBot!',
                  'gpu': 'GPUBot!', 'help': 'HelperBot!'}
 
@@ -78,6 +79,12 @@ def run_bot():
                             comment, bot_reply, summon_phrase['help'], helperbot)
                     # only appends footer if bot_reply has a value to prevent triggering on comments where bot isn't called.
                     if bot_reply:
+                        # Appends user approximation warning and buildbot link to avoid repetition on multiple queries
+                        cpu_comment_indicator = 'CPU STR'
+                        gpu_comment_indicator = 'GPU G3D Mark'
+                        if cpu_comment_indicator in bot_reply or gpu_comment_indicator in bot_reply:
+                            bot_reply += '\n\n**These ratings should only be used as a rough guide as some games are unusually demanding.**'
+                            bot_reply += f"\n\nThe latest dev version of PCSX2 can be found [HERE]({latest_build})"
                         footer = f"\n\n---\n\n^(Check my commands by commenting `HelperBot! commands`. I'm a bot, and should only be used for reference. If there are any issues, please contact my) ^[Creator](https://www.reddit.com/message/compose/?to=theoriginal123123&subject=/u/PCSX2-Wiki-Bot)\n\n[^GitHub]({github_link})\n"
                         bot_reply += footer
                         comment.reply(bot_reply)

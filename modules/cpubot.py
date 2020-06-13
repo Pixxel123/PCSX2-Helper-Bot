@@ -25,7 +25,6 @@ class CPUbot():
     def __init__(self):
         self.passmark_page = 'https://www.cpubenchmark.net/cpu_list.php'
         self.github_link = 'https://github.com/Pixxel123/PCSX2-CPU-Bot'
-        self.latest_build = 'https://buildbot.orphis.net/pcsx2/'
         self.pcsx2_page = 'https://pcsx2.net/getting-started.html'
         self.cpu_list = self.get_cpu_list()
 
@@ -94,9 +93,7 @@ class CPUbot():
                     break
             bot_reply = f"\n\n### **{cpu.model}**\n\n **CPU STR:** [{cpu.single_thread_rating} (CPU Benchmark Page)]({cpu.details_page})"
             bot_reply += f"\n\n **Performance:** {cpu_performance}"
-            bot_reply += '\n\n**These ratings should only be used as a rough guide** as some games are unusually demanding.'
             bot_reply += f"\n\n [Single Thread Rating **Minimum:** {self.str_minimum} | **Recommended:** {self.str_recommended} (PCSX2 Requirements Page)]({self.pcsx2_page})"
-            bot_reply += f"\n\n The latest version of PCSX2 can be found [HERE]({self.latest_build})"
         except TypeError:
             # reply if CPU information is not found
             bot_reply = f"Sorry, I couldn't find any information on {cpu_lookup}.\n\n If it's not on [PassMark's CPU Benchmarks list]({self.passmark_page}), I won't be able to return a result; or perhaps you have a misspelling, in which case, feel free to reply to this with `CPUBot! <model name>` and I'll try again!"
