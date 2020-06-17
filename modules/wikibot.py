@@ -172,10 +172,11 @@ class Wikibot:
         self.game_lookup = game_lookup
         try:
             if game_lookup == '':
-                bot_reply = "\n\nI need a search term to work with! Please try `WikiBot! <game name>`"
+                bot_reply = "\n\nI need a search term to work with! Please try `WikiBot! game name`"
             else:
                 # run bot if not blank
                 try:
+                    logging.info('Looking for game wiki...')
                     choices = []
                     for game in self.games_list:
                         # strip out spaces/non-word characters and lower for case-insensitive match
@@ -188,19 +189,21 @@ class Wikibot:
                             choices.append(game)
                     closest_match = process.extractOne(
                         game_lookup, choices, score_cutoff=85)
+                    logging.info(
+                        f"Searching: {game_lookup}, Closest: {closest_match}")
                     closest_match_name = closest_match[0]
                     bot_reply = self.display_game_info(closest_match_name)
                 except TypeError:
                     # Limits results so that users are not overwhelmed with links
                     limit_choices = process.extractBests(game_lookup, choices)
                     if limit_choices:
-                        bot_reply = f"\n\nNo direct match found for **{game_lookup}**, displaying {len(limit_choices)} wiki results:\n\n"
+                        bot_reply = f"\n\nNo direct game match found for **{game_lookup}**, displaying {len(limit_choices)} wiki results:\n\n"
                         search_results = ''
                         for result in limit_choices[:6]:
                             game_name = result[0]
                             search_results += f"[{game_name}]({self.games_list[game_name]})\n\n"
                         bot_reply += search_results
-                        bot_reply += "\n\nFeel free to ask me again (`WikiBot! game name`) with these game names or visit the wiki directly!\n"
+                        bot_reply += f"\n\nFeel free to ask me again (`WikiBot! game name`) with these game names or visit the [wiki]({self.wiki_base_url}) directly!\n"
         # Handles no results being found in search
         except AttributeError:
             bot_reply = f"\n\nI'm sorry, I couldn't find any information on **{game_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your game does not exist in the [PCSX2 Wiki]({self.wiki_base_url})."

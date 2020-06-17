@@ -102,6 +102,7 @@ class CPUbot():
 
     def bot_message(self, cpu_lookup):
         self.cpu_lookup = cpu_lookup
+        logging.info('Looking for CPU...')
         try:
             try:
                 choices = []
@@ -112,12 +113,14 @@ class CPUbot():
                         choices.append(cpu)
                 closest_match = process.extractOne(
                     cpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=85)
+                logging.info(
+                    f"Searching: {cpu_lookup}, Closest: {closest_match}")
                 closest_match_name = closest_match[0]
                 bot_reply = self.display_cpu_info(closest_match_name)
             except TypeError:
                 limit_choices = process.extractBests(cpu_lookup, choices)
                 if limit_choices:
-                    bot_reply = f"No direct match found for **{cpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
+                    bot_reply = f"No direct CPU  match found for **{cpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
                     search_results = ''
                     for result in limit_choices[:6]:
                         cpu_name = result[0]

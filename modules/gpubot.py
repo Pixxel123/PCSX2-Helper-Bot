@@ -85,6 +85,7 @@ class GPUbot():
 
     def bot_message(self, gpu_lookup):
         self.gpu_lookup = gpu_lookup
+        logging.info('Looking for GPU...')
         try:
             try:
                 choices = []
@@ -105,13 +106,13 @@ class GPUbot():
             except TypeError:
                 limit_choices = process.extractBests(gpu_lookup, choices)
                 if limit_choices:
-                    bot_reply = f"\n\nNo direct match found for **{gpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
+                    bot_reply = f"\n\nNo direct GPU match found for **{gpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
                     search_results = ''
                     for result in limit_choices[:6]:
                         gpu_name = result[0]
                         search_results += f"[{gpu_name}]({self.gpu_list[gpu_name]})\n\n"
                     bot_reply += search_results
-                    bot_reply += "\n\nFeel free to ask me again (`GPUBot! gpu model`) with these models or visit PassMark directly!\n"
+                    bot_reply += f"\n\nFeel free to ask me again (`GPUBot! gpu model`) with these models or visit [PassMark]({self.passmark_gpu_page}) directly!\n"
         # Handles no results being found in search
         except AttributeError:
             bot_reply = f"I'm sorry, I couldn't find any information on **{gpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your GPU does not exist in the [Passmark list]({self.passmark_gpu_page})."
