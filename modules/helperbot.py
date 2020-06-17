@@ -30,5 +30,8 @@ class Helperbot():
             bot_reply += "\n\n`HelperBot! specs` - Shows how to find CPU and GPU models in Windows 10"
             bot_reply += "\n\n`HelperBot! steam` - How to set up DualShock4 or other controllers on PCSX2 via Steam"
             bot_reply += "\n\n`HelperBot! commands` - Shows this message."
-            bot_reply += "\n\nPlease be aware that you can have one of each bot call in the same comment, such as `CPUBot!` and `WikiBot!`, but for multiple `HelperBot!` commands, each bot call and command must be made in a separate comment."
+            bot_reply += "\n\nPlease be aware that you can have one of each bot call in the same comment, such as `CPUBot!` and `WikiBot!`, but for multiple lookups or HelperBot commands, each command or lookup must be separated by a comma as follows:"
+            bot_reply += "\n\n    CPUBot! cpu model 1, cpu model 2"
+            bot_reply += "\n    WikiBot! game name 1, game name 2"
+            bot_reply += "\n    HelperBot! specs, support"
         return bot_reply
