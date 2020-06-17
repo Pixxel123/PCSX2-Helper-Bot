@@ -89,14 +89,17 @@ class GPUbot():
             try:
                 choices = []
                 for gpu in self.gpu_list:
-                    match_criteria = fuzz.token_set_ratio(gpu, gpu_lookup)
+                    # Removes spaces in strings to account for users different spellings
+                    # of things like "1080Ti" instead of the official "1080 Ti"
+                    match_criteria = fuzz.token_set_ratio(
+                        gpu.replace(' ', ''), gpu_lookup.replace(' ', ''))
                     if match_criteria >= 70:
                         choices.append(gpu)
                 # Not specifying scorer allows default use of WRatio()
                 # which is a weighted combination of the four fuzz ratios
                 closest_match = process.extractOne(
-                    gpu_lookup, choices, score_cutoff=70)
-                logging.info(f"{gpu_lookup}: {closest_match}")
+                    gpu_lookup.replace(' ', ''), choices)
+                logging.info(f"Searching: {gpu_lookup}, Closest: {closest_match}")
                 closest_match_name = closest_match[0]
                 bot_reply = self.display_gpu_info(closest_match_name)
             except TypeError:

@@ -90,7 +90,7 @@ def run_bot():
                         comment.reply(bot_reply)
                         comment = reddit.comment(id=f"{comment.id}")
                         comment.save()
-                        logging.info('Comment posted!')
+                        logging.info(f"Comment posted! Saved comment_id: {comment.id}")
                 except Exception:
                     pass
     except Exception as error:
