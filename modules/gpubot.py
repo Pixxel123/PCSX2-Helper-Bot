@@ -98,7 +98,7 @@ class GPUbot():
                 # Not specifying scorer allows default use of WRatio()
                 # which is a weighted combination of the four fuzz ratios
                 closest_match = process.extractOne(
-                    gpu_lookup.replace(' ', ''), choices)
+                    gpu_lookup.replace(' ', ''), choices, score_cutoff=70)
                 logging.info(f"Searching: {gpu_lookup}, Closest: {closest_match}")
                 closest_match_name = closest_match[0]
                 bot_reply = self.display_gpu_info(closest_match_name)
