@@ -87,33 +87,32 @@ class GPUbot():
         self.gpu_lookup = gpu_lookup
         logging.info('Looking for GPU...')
         try:
-            try:
-                choices = []
-                for gpu in self.gpu_list:
-                    # Removes spaces in strings to account for users different spellings
-                    # of things like "1080Ti" instead of the official "1080 Ti"
-                    match_criteria = fuzz.token_set_ratio(
-                        gpu.replace(' ', ''), gpu_lookup.replace(' ', ''))
-                    if match_criteria >= 70:
-                        choices.append(gpu)
-                # Not specifying scorer allows default use of WRatio()
-                # which is a weighted combination of the four fuzz ratios
-                closest_match = process.extractOne(
-                    gpu_lookup.replace(' ', ''), choices, score_cutoff=65)
-                logging.info(f"Searching: {gpu_lookup}, Closest: {closest_match}")
-                closest_match_name = closest_match[0]
-                bot_reply = self.display_gpu_info(closest_match_name)
-            except TypeError:
-                limit_choices = process.extractBests(gpu_lookup, choices)
-                if limit_choices:
-                    bot_reply = f"\n\nNo direct GPU match found for **{gpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
-                    search_results = ''
-                    for result in limit_choices[:6]:
-                        gpu_name = result[0]
-                        search_results += f"[{gpu_name}]({self.gpu_list[gpu_name]})\n\n"
-                    bot_reply += search_results
-                    bot_reply += f"\n\nFeel free to ask me again (`GPUBot! gpu model`) with these models or visit [PassMark]({self.passmark_gpu_page}) directly!\n"
-        # Handles no results being found in search
-        except AttributeError:
-            bot_reply = f"I'm sorry, I couldn't find any information on **{gpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your GPU does not exist in the [Passmark list]({self.passmark_gpu_page})."
+            choices = []
+            for gpu in self.gpu_list:
+                # Removes spaces in strings to account for users different spellings
+                # of things like "1080Ti" instead of the official "1080 Ti"
+                match_criteria = fuzz.token_set_ratio(
+                    gpu.replace(' ', ''), gpu_lookup.replace(' ', ''))
+                if match_criteria >= 70:
+                    choices.append(gpu)
+            # Not specifying scorer allows default use of WRatio()
+            # which is a weighted combination of the four fuzz ratios
+            closest_match = process.extractOne(
+                gpu_lookup.replace(' ', ''), choices, score_cutoff=65)
+            logging.info(f"Searching: {gpu_lookup}, Closest: {closest_match}")
+            closest_match_name = closest_match[0]
+            bot_reply = self.display_gpu_info(closest_match_name)
+        except TypeError:
+            limit_choices = process.extractBests(gpu_lookup, choices)
+            if limit_choices:
+                bot_reply = f"\n\nNo direct GPU match found for **{gpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
+                search_results = ''
+                for result in limit_choices[:6]:
+                    gpu_name = result[0]
+                    search_results += f"[{gpu_name}]({self.gpu_list[gpu_name]})\n\n"
+                bot_reply += search_results
+                bot_reply += f"\n\nFeel free to ask me again (`GPUBot! gpu model`) with these models or visit [PassMark]({self.passmark_gpu_page}) directly!\n"
+            # Handles no results being found in search
+            if not limit_choices:
+                bot_reply = f"I'm sorry, I couldn't find any information on **{gpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your GPU is not listed in the [Passmark GPU list]({self.passmark_gpu_page})."
         return bot_reply

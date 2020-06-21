@@ -104,30 +104,29 @@ class CPUbot():
         self.cpu_lookup = cpu_lookup
         logging.info('Looking for CPU...')
         try:
-            try:
-                choices = []
-                for cpu in self.cpu_list:
-                    match_criteria = fuzz.token_set_ratio(
-                        self.clean_input(cpu), self.clean_input(cpu_lookup))
-                    if match_criteria >= 50:
-                        choices.append(cpu)
-                closest_match = process.extractOne(
-                    cpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=85)
-                logging.info(
-                    f"Searching: {cpu_lookup}, Closest: {closest_match}")
-                closest_match_name = closest_match[0]
-                bot_reply = self.display_cpu_info(closest_match_name)
-            except TypeError:
-                limit_choices = process.extractBests(cpu_lookup, choices)
-                if limit_choices:
-                    bot_reply = f"No direct CPU  match found for **{cpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
-                    search_results = ''
-                    for result in limit_choices[:6]:
-                        cpu_name = result[0]
-                        search_results += f"[{cpu_name}]({self.cpu_list[cpu_name]})\n\n"
-                    bot_reply += search_results
-                    bot_reply += "\n\nFeel free to ask me again (`CPUBot! cpu model`) with these models or visit PassMark directly!\n"
-        # Handles no results being found in search
-        except AttributeError:
-            bot_reply = f"I'm sorry, I couldn't find any information on **{cpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your CPU does not exist in the [Passmark list]({self.passmark_page})."
+            choices = []
+            for cpu in self.cpu_list:
+                match_criteria = fuzz.token_set_ratio(
+                    self.clean_input(cpu), self.clean_input(cpu_lookup))
+                if match_criteria >= 50:
+                    choices.append(cpu)
+            closest_match = process.extractOne(
+                cpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=85)
+            logging.info(
+                f"Searching: {cpu_lookup}, Closest: {closest_match}")
+            closest_match_name = closest_match[0]
+            bot_reply = self.display_cpu_info(closest_match_name)
+        except TypeError:
+            limit_choices = process.extractBests(cpu_lookup, choices)
+            if limit_choices:
+                bot_reply = f"No direct CPU  match found for **{cpu_lookup}**, displaying {len(limit_choices)} potential matches:\n\n"
+                search_results = ''
+                for result in limit_choices[:6]:
+                    cpu_name = result[0]
+                    search_results += f"[{cpu_name}]({self.cpu_list[cpu_name]})\n\n"
+                bot_reply += search_results
+                bot_reply += "\n\nFeel free to ask me again (`CPUBot! cpu model`) with these models or visit PassMark directly!\n"
+            # Handles no results being found in search
+            if not limit_choices:
+                bot_reply = f"I'm sorry, I couldn't find any information on **{cpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your CPU is not listed in the [Passmark CPU list]({self.passmark_page})."
         return bot_reply
