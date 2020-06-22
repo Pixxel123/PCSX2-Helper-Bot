@@ -14,7 +14,7 @@ class Helperbot():
 
     def bot_message(self, command):
         bot_reply = ''
-        command = command.lower()
+        command = command.lower().strip()
         if command == 'support':
             bot_reply = "### **Getting Help on r/PCSX2**\n\n1) Please have the following information ready:\n\n- What PCSX2 version you are using. 'Latest' is not helpful, please look at the actual version number (Found at the top of your PCSX2 window if you're not in fullscreen).\n- What CPU and GPU your PC has. The `HelperBot! specs` command will show you where you can find these on Windows 10.\n- What specific game(s) you are having problems with.\n\n2) Ask your question! Don't worry about asking  (as long as your question falls within the rules)."
         if command == 'specs':
