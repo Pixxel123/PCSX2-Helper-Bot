@@ -30,6 +30,8 @@ class CPUbot():
 
     def get_cpu_list(self):
         logging.info('Getting CPU list from PassMark...')
+        # CPU models that can skew results are ignored
+        ignore_list = ['Intel Celeron']
         res = requests.get(self.passmark_page)
         html = bs(res.content, 'lxml')
         cpu_table = html.find('table', id='cputable').find('tbody')
@@ -37,8 +39,11 @@ class CPUbot():
         for row in cpu_table.find_all("tr")[1:]:  # skip header row
             cells = row.find_all("td")
             cpu_name = cells[0].text.split(" @", 1)[0]
-            cpu_details_link = cells[0].contents[0].attrs['href']
-            cpu_list[cpu_name] = f"https://www.cpubenchmark.net/{cpu_details_link.replace('cpu_lookup', 'cpu')}"
+            if cpu_name in ignore_list:
+                pass
+            else:
+                cpu_details_link = cells[0].contents[0].attrs['href']
+                cpu_list[cpu_name] = f"https://www.cpubenchmark.net/{cpu_details_link.replace('cpu_lookup', 'cpu')}"
         logging.info(f"Grabbed {len(cpu_list)} CPU's from list")
         return cpu_list
 
