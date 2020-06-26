@@ -133,5 +133,5 @@ class CPUbot():
                 bot_reply += "\n\nFeel free to ask me again (`CPUBot! cpu model`) with these models or visit PassMark directly!\n"
             # Handles no results being found in search
             if not limit_choices:
-                bot_reply = f"I'm sorry, I couldn't find any information on **{cpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your CPU is not listed in the [Passmark CPU list]({self.passmark_page})."
+                bot_reply = f"\n\nI'm sorry, I couldn't find any information on **{cpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your CPU is not listed in the [Passmark CPU list]({self.passmark_page})."
         return bot_reply

@@ -114,5 +114,5 @@ class GPUbot():
                 bot_reply += f"\n\nFeel free to ask me again (`GPUBot! gpu model`) with these models or visit [PassMark]({self.passmark_gpu_page}) directly!\n"
             # Handles no results being found in search
             if not limit_choices:
-                bot_reply = f"I'm sorry, I couldn't find any information on **{gpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your GPU is not listed in the [Passmark GPU list]({self.passmark_gpu_page})."
+                bot_reply = f"\n\nI'm sorry, I couldn't find any information on **{gpu_lookup}**.\n\nPlease feel free to try again; perhaps you had a spelling mistake, or your GPU is not listed in the [Passmark GPU list]({self.passmark_gpu_page})."
         return bot_reply
