@@ -113,7 +113,7 @@ class CPUbot():
             for cpu in self.cpu_list:
                 match_criteria = fuzz.token_set_ratio(
                     self.clean_input(cpu), self.clean_input(cpu_lookup))
-                if match_criteria >= 50:
+                if match_criteria >= 45:
                     choices.append(cpu)
             closest_match = process.extractOne(
                 cpu_lookup, choices, scorer=fuzz.token_set_ratio, score_cutoff=85)

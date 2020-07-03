@@ -93,7 +93,7 @@ class GPUbot():
                 # of things like "1080Ti" instead of the official "1080 Ti"
                 match_criteria = fuzz.token_set_ratio(
                     gpu.replace(' ', ''), gpu_lookup.replace(' ', ''))
-                if match_criteria >= 70:
+                if match_criteria >= 60:
                     choices.append(gpu)
             # Not specifying scorer allows default use of WRatio()
             # which is a weighted combination of the four fuzz ratios
