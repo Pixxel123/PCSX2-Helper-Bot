@@ -86,19 +86,20 @@ class GPUbot():
     def bot_message(self, gpu_lookup):
         self.gpu_lookup = gpu_lookup
         logging.info('Looking for GPU...')
+        # Ti GPU variants often get entered without a space, which messes up matching
+        # so regex is used to try and correct this
+        gpu_lookup = re.sub(r"(\d{3,4})(Ti)", r"\1 \2",
+                        gpu_lookup, flags=re.IGNORECASE)
         try:
             choices = []
             for gpu in self.gpu_list:
-                # Removes spaces in strings to account for users different spellings
-                # of things like "1080Ti" instead of the official "1080 Ti"
-                match_criteria = fuzz.token_set_ratio(
-                    gpu.replace(' ', ''), gpu_lookup.replace(' ', ''))
+                match_criteria = fuzz.token_set_ratio(gpu, gpu_lookup)
                 if match_criteria >= 60:
                     choices.append(gpu)
             # Not specifying scorer allows default use of WRatio()
             # which is a weighted combination of the four fuzz ratios
             closest_match = process.extractOne(
-                gpu_lookup.replace(' ', ''), choices, score_cutoff=65)
+                gpu_lookup, choices, score_cutoff=65)
             logging.info(f"Searching: {gpu_lookup}, Closest: {closest_match}")
             closest_match_name = closest_match[0]
             bot_reply = self.display_gpu_info(closest_match_name)

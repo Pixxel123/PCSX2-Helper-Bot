@@ -50,10 +50,6 @@ def generate_bot_message(comment, bot_reply, phrase, bot_choice):
     search_options = []
     # allows looking up of multiple items by the user
     for search in search_term.split(', '):
-        # Ti GPU variants often get entered without a space, which messes up matching
-        # so regex is used to try and correct this
-        search = re.sub(r"(\d{3,4})(Ti)", r"\1 \2",
-                        search, flags=re.IGNORECASE)
         bot_reply = bot_choice.bot_message(search.strip())
         search_options.append(bot_reply)
     # line break and separator added for visual clarity
