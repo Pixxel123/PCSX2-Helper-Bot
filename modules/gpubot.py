@@ -89,10 +89,13 @@ class GPUbot():
         # Ti GPU variants often get entered without a space, which messes up matching
         # so regex is used to try and correct this
         gpu_lookup = re.sub(r"(\d{3,4})(Ti)", r"\1 \2",
-                        gpu_lookup, flags=re.IGNORECASE)
+                            gpu_lookup, flags=re.IGNORECASE)
         try:
             choices = []
             for gpu in self.gpu_list:
+                match = re.search(r"graphics?", gpu, flags=re.IGNORECASE)
+                if match:
+                    gpu_lookup = re.sub(r"(graphics?)", "", gpu_lookup, flags=re.IGNORECASE)
                 match_criteria = fuzz.token_set_ratio(gpu, gpu_lookup)
                 if match_criteria >= 60:
                     choices.append(gpu)
