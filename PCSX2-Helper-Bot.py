@@ -25,8 +25,8 @@ logging.config.dictConfig({
 
 github_link = 'https://github.com/Pixxel123/PCSX2-Helper-Bot'
 latest_build = 'https://buildbot.orphis.net/pcsx2/'
-summon_phrase = {'wiki': 'WikiBot!', 'cpu': 'CPUBot!',
-                 'gpu': 'GPUBot!', 'help': 'HelperBot!'}
+summon_phrase = {'wiki': 'WikiBot', 'cpu': 'CPUBot',
+                 'gpu': 'GPUBot', 'help': 'HelperBot'}
 
 
 def bot_login():
@@ -45,7 +45,7 @@ def generate_bot_message(comment, bot_reply, phrase, bot_choice):
     # negative lookahead prevents other bot commands from being caught in the search term
     # use list comprehension in case commands get expanded in future
     search_term = re.search(
-        fr"({phrase})\s([^!?\n\r]((?!{'|'.join(command for command in summon_phrase.values())}).)*)", comment.body, re.IGNORECASE)
+        fr"({phrase})\s?!\s([^!?\n\r]((?!{'|'.join(command for command in summon_phrase.values())}).)*)", comment.body, re.IGNORECASE)
     search_term = search_term.group(2)
     search_options = []
     # allows looking up of multiple items by the user
