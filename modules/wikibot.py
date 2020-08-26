@@ -168,6 +168,10 @@ class Wikibot:
         bot_reply_info = f"\n\n## **[{game_lookup}]({self.games_list[game_lookup]})**\n\n{reply_table}{issue_message}"
         return bot_reply_info
 
+
+    # def roman_numerals_parse(self, gamelookup, cleaned_game):
+
+
     def bot_message(self, game_lookup):
         self.game_lookup = game_lookup
         try:
@@ -176,14 +180,25 @@ class Wikibot:
             else:
                 # run bot if not blank
                 try:
-                    logging.info('Looking for game wiki...')
+                    logging.info('Looking for game in wiki...')
                     choices = []
+                    roman_numeral_regex = re.compile(
+                        r'(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$', flags=re.IGNORECASE)
                     for game in self.games_list:
                         # strip out spaces/non-word characters and lower for case-insensitive match
                         cleaned_lookup = re.sub(r'\W', '', game_lookup).lower()
-                        cleaned_game = re.sub(r'\W', '', game).lower()
+                        cleaned_game_list_entry = re.sub(r'\W', '', game).lower()
+                        try:
+                            # if cleaned_game_list_entry has numeral AND game_lookup ends with number
+                            # try roman_numeral_parse
+                            game_digit = re.search(r'(\d+$)', cleaned_lookup)
+                            roman_numeral = re.search(roman_numeral_regex, cleaned_game_list_entry)
+                            if bool(game_digit) is True and bool(roman_numeral) is True:
+                                print('Roman Numeral Found!')
+                        except TypeError:
+                            pass
                         match_criteria = fuzz.ratio(
-                            cleaned_lookup, cleaned_game)
+                            cleaned_lookup, cleaned_game_list_entry)
                         # looser criteria attempts to allow abbreviations to be caught
                         if match_criteria >= 48:
                             choices.append(game)
