@@ -1,16 +1,17 @@
-import requests
-from bs4 import BeautifulSoup as bs
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
-from collections import namedtuple
-from pytablewriter import MarkdownTableWriter
 import io
-import praw
-import re
-import time
-import os
 import logging
 import logging.config
+import os
+import re
+import time
+from collections import namedtuple
+
+import praw
+import requests
+import roman
+from bs4 import BeautifulSoup as bs
+from fuzzywuzzy import fuzz, process
+from pytablewriter import MarkdownTableWriter
 
 # Logging allows replacing print statements to show more information
 # This config outputs human-readable time, the log level, the log message and the line number this originated from
@@ -180,8 +181,9 @@ class Wikibot:
             else:
                 # run bot if not blank
                 try:
-                    logging.info('Looking for game in wiki...')
+                    logging.info(f"Looking for {game_lookup} in wiki...")
                     choices = []
+                    # games with roman numerals can skew lookup results, this regex attempts to find them
                     roman_numeral_regex = re.compile(
                         r'(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$', flags=re.IGNORECASE)
                     for game in self.games_list:
@@ -191,19 +193,32 @@ class Wikibot:
                         try:
                             # if cleaned_game_list_entry has numeral AND game_lookup ends with number
                             # try roman_numeral_parse
-                            game_digit = re.search(r'(\d+$)', cleaned_lookup)
-                            roman_numeral = re.search(roman_numeral_regex, cleaned_game_list_entry)
-                            if bool(game_digit) is True and bool(roman_numeral) is True:
-                                print('Roman Numeral Found!')
+                            ends_with_digit = re.search(r'(\d+$)', cleaned_lookup)
+                            has_roman_numeral = re.search(roman_numeral_regex, cleaned_game_list_entry)
+                            # print(f"Game: {game_lookup} | Wiki Entry: {game}")
+                            # print(f"{cleaned_lookup} Ends with digit: {bool(ends_with_digit)} | {cleaned_game_list_entry} has Roman Numeral: {bool(has_roman_numeral)}")
+                            # print(f"Combined: {bool(ends_with_digit) and bool(has_roman_numeral)}")
+                            if bool(ends_with_digit) and bool(has_roman_numeral):
+                                game_lookup_number = int(ends_with_digit.group())
+                                converted_game_lookup = re.sub(
+                                    r'(\d+$)', roman.toRoman(game_lookup_number), cleaned_lookup).lower()
                         except TypeError:
-                            pass
-                        match_criteria = fuzz.ratio(
-                            cleaned_lookup, cleaned_game_list_entry)
+                            continue
+                        try:
+                            match_criteria = fuzz.ratio(
+                                converted_game_lookup, cleaned_game_list_entry)
+                        except UnboundLocalError:
+                            match_criteria = fuzz.ratio(
+                                cleaned_lookup, cleaned_game_list_entry)
                         # looser criteria attempts to allow abbreviations to be caught
                         if match_criteria >= 48:
                             choices.append(game)
-                    closest_match = process.extractOne(
-                        game_lookup, choices, score_cutoff=85)
+                    try:
+                        closest_match = process.extractOne(
+                            converted_game_lookup, choices, score_cutoff=85)
+                    except UnboundLocalError:
+                        closest_match = process.extractOne(
+                            game_lookup, choices, score_cutoff=85)
                     logging.info(
                         f"Searching: {game_lookup}, Closest: {closest_match}")
                     closest_match_name = closest_match[0]
