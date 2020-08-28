@@ -215,7 +215,7 @@ class Wikibot:
                             converted_game_lookup, choices, score_cutoff=85)
                         logging.info(f"Searching: {game_lookup}, Closest Roman Numeral Match: {closest_match_roman_numeral}")
                         closest_match_name = closest_match_roman_numeral[0]
-                    except TypeError:
+                    except (TypeError, UnboundLocalError):
                         # use direct game lookup if roman numeral conversion not found
                         closest_match = process.extractOne(
                             game_lookup, choices, score_cutoff=85)
