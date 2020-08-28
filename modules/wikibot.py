@@ -169,10 +169,6 @@ class Wikibot:
         bot_reply_info = f"\n\n## **[{game_lookup}]({self.games_list[game_lookup]})**\n\n{reply_table}{issue_message}"
         return bot_reply_info
 
-
-    # def roman_numerals_parse(self, gamelookup, cleaned_game):
-
-
     def bot_message(self, game_lookup):
         self.game_lookup = game_lookup
         try:
@@ -189,39 +185,42 @@ class Wikibot:
                     for game in self.games_list:
                         # strip out spaces/non-word characters and lower for case-insensitive match
                         cleaned_lookup = re.sub(r'\W', '', game_lookup).lower()
-                        cleaned_game_list_entry = re.sub(r'\W', '', game).lower()
+                        cleaned_game_list_entry = re.sub(
+                            r'\W', '', game).lower()
                         try:
                             # if cleaned_game_list_entry has numeral AND game_lookup ends with number
                             # try roman_numeral_parse
                             ends_with_digit = re.search(r'(\d+$)', cleaned_lookup)
                             has_roman_numeral = re.search(roman_numeral_regex, cleaned_game_list_entry)
-                            # print(f"Game: {game_lookup} | Wiki Entry: {game}")
-                            # print(f"{cleaned_lookup} Ends with digit: {bool(ends_with_digit)} | {cleaned_game_list_entry} has Roman Numeral: {bool(has_roman_numeral)}")
-                            # print(f"Combined: {bool(ends_with_digit) and bool(has_roman_numeral)}")
                             if bool(ends_with_digit) and bool(has_roman_numeral):
+                                # print(f"Game: {game_lookup} | Wiki Entry: {game}")
+                                # print(f"{cleaned_lookup} Ends with digit: {bool(ends_with_digit)} | {cleaned_game_list_entry} has Roman Numeral: {bool(has_roman_numeral)}")
+                                # print(f"Combined: {bool(ends_with_digit) and bool(has_roman_numeral)}")
                                 game_lookup_number = int(ends_with_digit.group())
-                                converted_game_lookup = re.sub(
-                                    r'(\d+$)', roman.toRoman(game_lookup_number), cleaned_lookup).lower()
+                                converted_game_lookup = re.sub(r'(\d+$)', roman.toRoman(game_lookup_number), cleaned_lookup).lower()
                         except TypeError:
                             continue
                         try:
                             match_criteria = fuzz.ratio(
                                 converted_game_lookup, cleaned_game_list_entry)
                         except UnboundLocalError:
+                            # if converted_game_lookup not set, use direct game lookup
                             match_criteria = fuzz.ratio(
                                 cleaned_lookup, cleaned_game_list_entry)
                         # looser criteria attempts to allow abbreviations to be caught
                         if match_criteria >= 48:
                             choices.append(game)
                     try:
-                        closest_match = process.extractOne(
+                        closest_match_roman_numeral = process.extractOne(
                             converted_game_lookup, choices, score_cutoff=85)
-                    except UnboundLocalError:
+                        logging.info(f"Searching: {game_lookup}, Closest Roman Numeral Match: {closest_match_roman_numeral}")
+                        closest_match_name = closest_match_roman_numeral[0]
+                    except TypeError:
+                        # use direct game lookup if roman numeral conversion not found
                         closest_match = process.extractOne(
                             game_lookup, choices, score_cutoff=85)
-                    logging.info(
-                        f"Searching: {game_lookup}, Closest: {closest_match}")
-                    closest_match_name = closest_match[0]
+                        logging.info(f"Searching: {game_lookup}, Closest: {closest_match}")
+                        closest_match_name = closest_match[0]
                     bot_reply = self.display_game_info(closest_match_name)
                 except TypeError:
                     # Limits results so that users are not overwhelmed with links
