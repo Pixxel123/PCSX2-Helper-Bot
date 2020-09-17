@@ -32,6 +32,8 @@ class CPUbot():
         logging.info('Getting CPU list from PassMark...')
         # CPU models that can skew results are ignored
         ignore_list = ['Intel Celeron']
+        ignore_xeon = re.compile(
+            r"^(?!.*(Intel Xeon)\s?@?\s?(\d\.\d{2}GHz)).*$")
         res = requests.get(self.passmark_page)
         html = bs(res.content, 'lxml')
         cpu_table = html.find('table', id='cputable').find('tbody')
@@ -39,11 +41,11 @@ class CPUbot():
         for row in cpu_table.find_all("tr")[1:]:  # skip header row
             cells = row.find_all("td")
             cpu_name = cells[0].text.split(" @", 1)[0]
-            if cpu_name in ignore_list:
-                pass
-            else:
+            if cpu_name not in ignore_list and re.match(ignore_xeon, cpu_name):
                 cpu_details_link = cells[0].contents[0].attrs['href']
                 cpu_list[cpu_name] = f"https://www.cpubenchmark.net/{cpu_details_link.replace('cpu_lookup', 'cpu')}"
+            else:
+                logging.debug(f"Ignored: {cpu_name}")
         logging.info(f"Grabbed {len(cpu_list)} CPU's from list")
         return cpu_list
 
